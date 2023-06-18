@@ -40,3 +40,6 @@ Run the command on the other computer to receive the file:
 ```bash
 runpodctl receive 8338-galileo-collect-fidel
 ```
+
+References:  
+https://github.com/runpod/runpodctl
