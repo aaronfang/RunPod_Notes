@@ -3,6 +3,7 @@
 > RunPod Stable Diffusion v1.5+v2  
 > Storage: 10GB Container Disk, 50GB Volume Disk  
 > 
+### Install Latest Automatic1111 Web UI and DreamBooth Extension And Cuda and cuDNN DLL Libraries on RunPod  
 
 1. Open https://www.runpod.io/
 2. Community Cloud search for a 24GB VRAM GPU such as RTX 3090
