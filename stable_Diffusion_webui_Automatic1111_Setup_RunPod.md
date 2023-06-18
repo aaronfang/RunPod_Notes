@@ -50,3 +50,6 @@ yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda
 cd /workspace/stable-diffusion-webui
 python relauncher.py
 ```
+
+Reference:
+https://github.com/FurkanGozukara/Stable-Diffusion/blob/main/Tutorials/How-To-Install-DreamBooth-Extension-On-RunPod.md
