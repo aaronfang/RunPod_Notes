@@ -19,6 +19,10 @@
     while (n<1):
     ```
 6. save the file and restart the pod. (sometime you need to reconnect the pod again)
+7. run the auto_deploy.py file in the root folder of the pod. it will help you to setup models, lora, extensions, esrgans, etc. make sure you are in the root folder of the pod. (you can upload the file to the root folder by drag and drop)
+    ```bash
+     python auto_deploy.py
+    ```
 7. go to /workspace/, upload install1.sh and install2.sh, by drag and drop them to the folder
 8. open a terminal and run the following commands:
     ```bash
