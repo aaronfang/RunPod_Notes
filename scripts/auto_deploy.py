@@ -299,6 +299,19 @@ else:
 # change working directory to stable-diffusion-webui
 os.chdir(f"{root}/stable-diffusion-webui/")
 
+# modify relauncher.py file
+def modify_file(filename):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    with open(filename, 'w') as file:
+        for line in lines:
+            if 'while True:' in line:
+                line = line.replace('while True:', 'while (n<1):')
+            file.write(line)
+
+modify_file('relauncher.sh')
+
 # took this from the google colab code I used before. No idea why it changes that line and it doesn't work. so off it goes... (I know I'm a mess)
 # Replace `prepare_environment()` with `prepare_environment():`
 #os.system(f"""sed -i -e '/prepare_environment():/a\    os.system(f\\"sed -i -e ''\\"s/dict()))/dict())).cuda()/g\\"'' {root}/stable-diffusion-#webui/repositories/stable-diffusion-stability-ai/ldm/util.py" {root}/stable-diffusion-webui/launch.py""")
