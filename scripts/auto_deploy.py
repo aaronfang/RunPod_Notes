@@ -4,8 +4,37 @@
 # Disclaimer: I am not proficient in writing python or knowing what to implement how. I tried my best to get it to working with examples and ChatGPT.
 # If you use this to make a better one, please let me know. I'm shure there are better ways then this. But for now it works...
 
-#### SET YOUR ROOT HERE 
-root = "/workspace"
+#######################################
+#CHECK FOR PACKAGES AND INSTALL IF NOT AVAILABLE
+#######################################
+
+import importlib
+import subprocess
+import sys
+
+REQUIRED_PACKAGES = [
+    'os', 
+    'shutil', 
+    'IPython', 
+    'subprocess', 
+    'time', 
+    'ipywidgets', 
+    'requests', 
+    'sys', 
+    'fileinput', 
+    'torch', 
+    'urllib', 
+    're', 
+    'zipfile'
+]
+
+for package in REQUIRED_PACKAGES:
+    try:
+        importlib.import_module(package)
+    except ImportError:
+        subprocess.call([sys.executable, "-m", "pip", "install", package])
+
+
 
 # these imports are partially taken from the script use in the fast-sd template from runpod bcs I implemented a small portion of their code. 
 
@@ -28,8 +57,13 @@ import zipfile
 #VARIABLES
 #######################################
 
-# flags = "--port 3000 --theme=dark --listen --api --force-enable-xformers --xformers --no-half --no-half-vae --opt-split-attention --opt-channelslast --opt-sdp-no-mem-attention --enable-insecure-extension-access"
+#### SET YOUR ROOT HERE 
+root = "/workspace"
+
+#### SET YOUR WEBUI-USER FLAGS --force-enable-xformers --xformers --no-half --no-half-vae --opt-split-attention --opt-channelslast --opt-sdp-no-mem-attention
 flags = "--opt-sdp-attention --port 3001 --listen --enable-insecure-extension-access --api --theme=dark"
+
+#### SET EXTENSIONS TO INSTALL
 extension_list = [
                     "https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper",
                     "https://jihulab.com/hunter0725/a1111-sd-webui-tagcomplete",
@@ -44,13 +78,24 @@ extension_list = [
                     "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
                     "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards"
                 ]
+
+#### SET CHECKPOINT MODELS TO DOWNLOAD
 checkpoint_models = [
                         "https://civitai.com/api/download/models/77276"
                     ]
-vae_models = [
-                "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.ckpt"
+
+### SET LORA MODELS TO DOWNLOAD
+lora_models = [
+                "https://civitai.com/api/download/models/96573",
+                "https://civitai.com/api/download/models/87153", 
+
             ]
 
+#### SET VAE TO DOWNLOAD
+vae_models = [
+                "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.ckpt",
+                "https://civitai.com/api/download/models/88156"
+            ]
 
 #######################################
 #SWITCHES
@@ -58,6 +103,7 @@ vae_models = [
 # s
 init_packages = True
 download_checkpoints = True
+download_lora = True
 download_vae_models = True
 download_embedding_models = True
 download_extensions = True
@@ -109,14 +155,29 @@ if init_packages:
     else:
         print("An error occurred while installing runpodctl.")
 
+#######################################
+#DOWNLOAD FUNCTIONS
+#######################################
+
+# download function from google drive
+def gdown_func(id, output):
+    url = f'https://drive.google.com/uc?id={id}'
+    gdown.download(url, output, quiet=False)
+
+# download function from url
+def download_files(urls, output_path):
+    for url in urls:
+        filename = url.split('/')[-1]  # 获取url中的文件名
+        command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -o {filename} {url} -d {output_path}"
+        result = os.system(command)
+        if result == 0:
+            print(f"{url} downloaded successfully!")
+        else:
+            print(f"An error occurred while downloading {url}.")
 
 #######################################
 #DOWNLOAD MISC FILES FROM GOOGLE DRIVE
 #######################################
-
-def gdown_func(id, output):
-    url = f'https://drive.google.com/uc?id={id}'
-    gdown.download(url, output, quiet=False)
 
 if download_styles:
     # import styles.csv file from google drive
@@ -147,45 +208,27 @@ if download_embedding_models:
 #######################################
 
 if download_checkpoints:
-    def download_models(checkpoint_models):
-        models_path = f"{root}/stable-diffusion-webui/models/Stable-diffusion"
-        models = checkpoint_models
-        for model in models:
-            for model in models:
-                command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M {model} -d {models_path}"
-                result = os.system(command)
-                if result == 0:
-                    print(f"{model} downloaded successfully!")
-                else:
-                    print(f"An error occurred while downloading {model}.")          
+    checkpoint_model_path = f"{root}/stable-diffusion-webui/models/Stable-diffusion"
     print("========== Downloading models...========== \n")
-    download_models(checkpoint_models)
+    download_files(checkpoint_models, checkpoint_model_path)
 
 #######################################
 #VAE
 #######################################
 
 if download_vae_models:
-    def vae_down(vae_models):
-        for vae in vae_models:
-            filename = vae.split('/')[-1]  # 获取url中的文件名
-            filepath = f"{root}/stable-diffusion-webui/models/VAE"
-            command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -o {filename} {vae} -d {filepath}"
-            result = os.system(command)
-            if result == 0:
-                print(f"{vae} downloaded successfully!")
-            else:
-                print(f"An error occurred while downloading {vae}.")
-        print("VAE install completed.")
-    
-print("========== Downloading VAEs...========== \n")
-vae_down(vae_models)
-
+    vae_path = f"{root}/stable-diffusion-webui/models/VAE"
+    print("========== Downloading VAEs From...========== \n")
+    download_files(vae_models, vae_path)
 
 #######################################
 #LORAS
 #######################################
 
+if download_lora:
+    lora_path = f"{root}/stable-diffusion-webui/models/Lora"
+    print("========== Downloading LORAs...========== \n")
+    download_files(lora_models, lora_path)
 
 #######################################
 #EXTENSIONS
@@ -215,50 +258,61 @@ if download_extensions:
 # This uses the model list in the TheLastBen colab notebook
 
 if download_controlnet:
+    extensions_path = f"{root}/stable-diffusion-webui/extensions"
+    models_path = f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models"
+    cn_models_txt = f"{root}/CN_models.txt"
+    cn_models_v2_txt = f"{root}/CN_models_v2.txt"
+
+    def wget_file(url, dest_path):
+        subprocess.run(['wget', '-q', '-O', dest_path, url], check=True)
+
+    def clone_or_pull_repo(repo_url, dest_path):
+        if not os.path.exists(dest_path):
+            subprocess.run(['git', 'clone', repo_url, dest_path], check=True)
+        else:
+            current_dir = os.getcwd()
+            os.chdir(dest_path)
+            subprocess.run(['git', 'reset', '--hard'], check=True)
+            subprocess.run(['git', 'pull'], check=True)
+            os.chdir(current_dir)
+
+    def copy_files(source, dest):
+        subprocess.run(['cp', source, dest], check=True)
+
     def download(url, model_dir):
         filename = os.path.basename(urlparse(url).path)
-        pth = os.path.abspath(os.path.join(model_dir, filename))
-        if not os.path.exists(pth):
-            print('Downloading: '+os.path.basename(url))
-            download_url_to_file(url, pth, hash_prefix=None, progress=True)
+        dest_path = os.path.join(model_dir, filename)
+        if not os.path.exists(dest_path):
+            print(f"Downloading: {filename}")
+            wget_file(url, dest_path)
         else:
             print(f"The model {filename} already exists")
 
-    wrngv1=False
-    os.chdir(f'{root}/stable-diffusion-webui/extensions')
-    if not os.path.exists("sd-webui-controlnet"):
-        call('git clone https://github.com/Mikubill/sd-webui-controlnet.git', shell=True)
-        os.chdir(f'{root}')
-    else:
-        os.chdir('sd-webui-controlnet')
-        call('git reset --hard', shell=True, stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
-        call('git pull', shell=True, stdout=open('/dev/null', 'w'), stderr=open('/dev/null', 'w'))
-        os.chdir(f'{root}')
+    print("========== Downloading models...========== \n")
+    clone_or_pull_repo('https://github.com/Mikubill/sd-webui-controlnet.git', f"{extensions_path}/sd-webui-controlnet")
 
-    mdldir=f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models"
-    for filename in os.listdir(mdldir):
+    for filename in os.listdir(models_path):
         if "_sd14v1" in filename:
             renamed = re.sub("_sd14v1", "-fp16", filename)
-            os.rename(os.path.join(mdldir, filename), os.path.join(mdldir, renamed))
+            os.rename(os.path.join(models_path, filename), os.path.join(models_path, renamed))
 
-    call('wget -q -O CN_models.txt https://github.com/TheLastBen/fast-stable-diffusion/raw/main/AUTOMATIC1111_files/CN_models.txt', shell=True)
-    call('wget -q -O CN_models_v2.txt https://github.com/TheLastBen/fast-stable-diffusion/raw/main/AUTOMATIC1111_files/CN_models_v2.txt', shell=True)
+    wget_file('https://github.com/TheLastBen/fast-stable-diffusion/raw/main/AUTOMATIC1111_files/CN_models.txt', cn_models_txt)
+    wget_file('https://github.com/TheLastBen/fast-stable-diffusion/raw/main/AUTOMATIC1111_files/CN_models_v2.txt', cn_models_v2_txt)
 
-    with open("CN_models.txt", 'r') as f:
-        mdllnk = f.read().splitlines()
-    with open("CN_models_v2.txt", 'r') as d:
-        mdllnk_v2 = d.read().splitlines()
-    call('rm CN_models.txt CN_models_v2.txt', shell=True)
+    with open(cn_models_txt, 'r') as f:
+        model_links = f.read().splitlines()
+    with open(cn_models_v2_txt, 'r') as d:
+        model_links_v2 = d.read().splitlines()
 
-    cfgnames=[os.path.basename(url).split('.')[0]+'.yaml' for url in mdllnk_v2]
-    os.chdir(f'{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models')
-    for name in cfgnames:
-        run(['cp', 'cldm_v21.yaml', name])
-    os.chdir(f'{root}')
+    for link in model_links + model_links_v2:
+        download(link, models_path)
 
-    for lnk in mdllnk:
-        download(lnk, mdldir)
-    clear_output()
+    subprocess.run(['rm', cn_models_txt, cn_models_v2_txt], check=True)
+
+    config_names=[os.path.basename(url).split('.')[0]+'.yaml' for url in model_links_v2]
+    for name in config_names:
+        copy_files(f"{models_path}/cldm_v21.yaml", f"{models_path}/{name}")
+
 
 #######################################
 #other stuff
