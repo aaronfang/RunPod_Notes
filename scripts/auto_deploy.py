@@ -29,7 +29,7 @@ import zipfile
 #######################################
 
 # flags = "--port 3000 --theme=dark --listen --api --force-enable-xformers --xformers --no-half --no-half-vae --opt-split-attention --opt-channelslast --opt-sdp-no-mem-attention --enable-insecure-extension-access"
-flags = "--opt-sdp-attention --port 3000 --listen --enable-insecure-extension-access --api --theme=dark"
+flags = "--opt-sdp-attention --port 3001 --listen --enable-insecure-extension-access --api --theme=dark"
 extension_list = [
                     "https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper",
                     "https://jihulab.com/hunter0725/a1111-sd-webui-tagcomplete",
@@ -42,8 +42,7 @@ extension_list = [
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
                     "https://github.com/civitai/sd_civitai_extension",
                     "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
-                    "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards",
-                    "https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper"
+                    "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards"
                 ]
 checkpoint_models = [
                         "https://civitai.com/api/download/models/77276"
@@ -64,6 +63,8 @@ download_embedding_models = True
 download_extensions = True
 download_controlnet = True
 download_styles = True
+edit_relauncher = True
+edit_webui_user = True
 
 #######################################
 #INIT PACKAGES INSTALLATION
@@ -167,16 +168,19 @@ if download_checkpoints:
 if download_vae_models:
     def vae_down(vae_models):
         for vae in vae_models:
+            filename = vae.split('/')[-1]  # 获取url中的文件名
             filepath = f"{root}/stable-diffusion-webui/models/VAE"
-            command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M {vae} -d {filepath}"
+            command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -o {filename} {vae} -d {filepath}"
             result = os.system(command)
             if result == 0:
                 print(f"{vae} downloaded successfully!")
             else:
                 print(f"An error occurred while downloading {vae}.")
         print("VAE install completed.")
-    print("========== Downloading VAEs...========== \n")
-    vae_down(vae_models)     
+    
+print("========== Downloading VAEs...========== \n")
+vae_down(vae_models)
+
 
 #######################################
 #LORAS
@@ -281,36 +285,31 @@ if download_controlnet:
 # # change working directory to stable-diffusion-webui
 # os.chdir(f"{root}/stable-diffusion-webui/")
 
-# modify relauncher.py file
-def modify_relauncherfile(filename):
-    with open(filename, 'r') as file:
-        lines = file.readlines()
+if edit_relauncher:
+    # modify relauncher.py file
+    def modify_relauncherfile(filename):
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+        with open(filename, 'w') as file:
+            for line in lines:
+                if 'while True:' in line:
+                    line = line.replace('while True:', 'while (n<1):')
+                file.write(line)
+    print("========== Modifying relauncher.py file...========== \n")
+    modify_relauncherfile(f'{root}/stable-diffusion-webui/relauncher.py')
 
-    with open(filename, 'w') as file:
-        for line in lines:
-            if 'while True:' in line:
-                line = line.replace('while True:', 'while (n<1):')
-            file.write(line)
-
-print("========== Modifying relauncher.py file...========== \n")
-modify_relauncherfile(f'{root}/stable-diffusion-webui/relauncher.py')
-
-
-# modify webui-user.sh file
-def modify_webui_userfile(flags):
-    filename = f'{root}/stable-diffusion-webui/webui-user.sh'  # 更新为你的文件路径
-
-    with open(filename, "r") as file:
-        content = file.read()
-
-    # 将需要替换的字符串定义在这里
-    content = content.replace('export COMMANDLINE_ARGS=""', 'export COMMANDLINE_ARGS="{}"'.format(flags))
-
-    with open(filename, "w") as file:
-        file.write(content)
-
-# print("========== Modifying webui-user.sh file...========== \n")
-# modify_webui_userfile(flags)
+if edit_webui_user:
+    # modify webui-user.sh file
+    def modify_webui_userfile(flags):
+        filename = f'{root}/stable-diffusion-webui/webui-user.sh'  # 更新为你的文件路径
+        with open(filename, "r") as file:
+            content = file.read()
+        # 将需要替换的字符串定义在这里
+        content = content.replace('export COMMANDLINE_ARGS=""', 'export COMMANDLINE_ARGS="{}"'.format(flags))
+        with open(filename, "w") as file:
+            file.write(content)
+    print("========== Modifying webui-user.sh file...========== \n")
+    modify_webui_userfile(flags)
 
 
 # took this from the google colab code I used before. No idea why it changes that line and it doesn't work. so off it goes... (I know I'm a mess)
@@ -331,5 +330,9 @@ def modify_webui_userfile(flags):
 
 # make a1111 use the newest torch version, found this online...
 # call('pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu118', shell=True)
+
+# kill port 3000
+os.system("fuser -k 3000/tcp")
+print("========== Port 3000 killed...========== \n")
 
 print("All done!")
