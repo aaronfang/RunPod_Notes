@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # modify relauncher.py to only run once
-sed -i 's/while True:/while (n<1):/g' relauncher.py
+sed -i 's/while True:/while (n<1):/g' /workspace/stable-diffusion-webui/relauncher.py
 
 # kill any existing webui
 fuser -k 3000/tcp
@@ -15,10 +15,10 @@ git checkout master
 git pull
 
 # modify webui-user.sh
-curl -o /workspace/stable-diffusion-webui/webui-user.sh https://huggingface.co/MonsterMMORPG/SECourses/resolve/main/webui-user-pt1.sh
+curl -o /workspace/stable-diffusion-webui/webui-user.sh /workspace/tmp1-webui-user.sh
 
 # remove old venv
-rm -r venv
+rm -r /workspace/venv
 
 # install cuda and cudnn
 yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages
