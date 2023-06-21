@@ -2,7 +2,7 @@
 
 fuser -k 3000/tcp
 
-curl -o /workspace/stable-diffusion-webui/webui-user.sh https://huggingface.co/MonsterMMORPG/SECourses/resolve/main/webui-user-pt2.sh
+curl -o /workspace/stable-diffusion-webui/webui-user.sh /workspace/tmp2-webui-user.sh
 
 source /workspace/venv/bin/activate 
 
@@ -12,7 +12,7 @@ yes | pip uninstall torch torchvision torchaudio
 
 yes | pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-pip install -r /workspace/stable-diffusion-webui/extensions/sd_dreambooth_extension/requirements.txt
+# pip install -r /workspace/stable-diffusion-webui/extensions/sd_dreambooth_extension/requirements.txt
 
 cd /workspace/stable-diffusion-webui
 

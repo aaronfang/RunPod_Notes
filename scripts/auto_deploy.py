@@ -1,11 +1,11 @@
 #######################################
-#Install everything you want in one script kind of...
+# Install everything you want in one script kind of...
 #######################################
 # Disclaimer: I am not proficient in writing python or knowing what to implement how. I tried my best to get it to working with examples and ChatGPT.
 # If you use this to make a better one, please let me know. I'm shure there are better ways then this. But for now it works...
 
 #######################################
-#CHECK FOR PACKAGES AND INSTALL IF NOT AVAILABLE
+# CHECK FOR PACKAGES AND INSTALL IF NOT AVAILABLE
 #######################################
 
 import importlib
@@ -54,7 +54,7 @@ import zipfile
 
 
 #######################################
-#VARIABLES
+# VARIABLES
 #######################################
 
 #### SET YOUR ROOT HERE 
@@ -63,14 +63,14 @@ root = "/workspace"
 #### SET YOUR WEBUI-USER FLAGS --force-enable-xformers --xformers --no-half --no-half-vae --opt-split-attention --opt-channelslast --opt-sdp-no-mem-attention
 flags = "--opt-sdp-attention --port 3001 --listen --enable-insecure-extension-access --api --theme=dark"
 
-#### SET EXTENSIONS TO INSTALL
+#### SET EXTENSIONS
 extension_list = [
                     "https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper",
                     "https://jihulab.com/hunter0725/a1111-sd-webui-tagcomplete",
                     "https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111",
                     "https://github.com/ArtVentureX/sd-webui-agent-scheduler",
                     "https://github.com/kohya-ss/sd-webui-additional-networks",
-                    "https://github.com/camenduru/openpose-editor",
+                    "https://github.com/huchenlei/sd-webui-openpose-editor",
                     "https://github.com/zanllp/sd-webui-infinite-image-browsing",
                     "https://github.com/hnmr293/posex",
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
@@ -79,29 +79,49 @@ extension_list = [
                     "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards"
                 ]
 
-#### SET CHECKPOINT MODELS TO DOWNLOAD
-checkpoint_models = [
-                        "https://civitai.com/api/download/models/77276"
+#### SET CHECKPOINT MODELS
+checkpoint_models = [   
+                        "https://civitai.com/api/download/models/77276", # perfect world v4
+                        "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
                     ]
 
-### SET LORA MODELS TO DOWNLOAD
+### SET LORA MODELS
 lora_models = [
-                "https://civitai.com/api/download/models/96573",
-                "https://civitai.com/api/download/models/87153", 
+                "https://civitai.com/api/download/models/96573", # 3DMM
+                "https://civitai.com/api/download/models/87153", # more_details
 
             ]
 
-#### SET VAE TO DOWNLOAD
+#### SET VAE
 vae_models = [
                 "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.ckpt",
-                "https://civitai.com/api/download/models/88156"
+                "https://civitai.com/api/download/models/88156" # ClearVAE
             ]
 
+### SET CONTROLNET MODELS
+controlnet_models = [
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_shuffle.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
+                    ]
+
 #######################################
-#SWITCHES
+# SWITCHES
 #######################################
-# s
+
 init_packages = True
+force_update_webui = False
 download_checkpoints = True
 download_lora = True
 download_vae_models = True
@@ -113,7 +133,7 @@ edit_relauncher = True
 edit_webui_user = True
 
 #######################################
-#INIT PACKAGES INSTALLATION
+# INIT PACKAGES INSTALLATION
 #######################################
 
 if init_packages:
@@ -156,8 +176,36 @@ if init_packages:
         print("An error occurred while installing runpodctl.")
 
 #######################################
-#DOWNLOAD FUNCTIONS
+# FUNCTIONS
 #######################################
+
+# update git repo function
+def update_git_repo(repo_path, force_reset=False, update_submodules=False):
+    # change working directory
+    os.chdir(repo_path)
+    
+    # reset git repository
+    if force_reset:
+        result = os.system("git reset --hard")
+        if result == 0:
+            print(f"Git repository in {repo_path} reset successfully!")
+        else:
+            print(f"An error occurred while resetting Git repository in {repo_path}.")
+    
+    # pull latest version
+    result = os.system("git pull")
+    if result == 0:
+        print(f"Git repository in {repo_path} pulled successfully!")
+    else:
+        print(f"An error occurred while pulling Git repository in {repo_path}.")
+
+    # Check for submodules and update if present
+    if update_submodules and os.path.isfile('.gitmodules'):
+        result = os.system("git submodule update --init --recursive")
+        if result == 0:
+            print(f"Submodules in {repo_path} updated successfully!")
+        else:
+            print(f"An error occurred while updating submodules in {repo_path}.")
 
 # download function from google drive
 def gdown_func(id, output):
@@ -167,8 +215,11 @@ def gdown_func(id, output):
 # download function from url
 def download_files(urls, output_path):
     for url in urls:
-        filename = url.split('/')[-1]  # 获取url中的文件名
-        command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -o {filename} {url} -d {output_path}"
+        parsed_url = urlparse(url)
+        command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M {url} -d {output_path}"
+        if 'civitai' not in parsed_url.netloc:
+            filename = url.split('/')[-1]  # 获取url中的文件名
+            command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -o {filename} {url} -d {output_path}"
         result = os.system(command)
         if result == 0:
             print(f"{url} downloaded successfully!")
@@ -176,22 +227,17 @@ def download_files(urls, output_path):
             print(f"An error occurred while downloading {url}.")
 
 #######################################
-#DOWNLOAD MISC FILES FROM GOOGLE DRIVE
+# UPDATE WEBUI REPO
 #######################################
 
-if download_styles:
-    # import styles.csv file from google drive
-    def styles_down():
-        if os.path.exists(f'{root}/stable-diffusion-webui/styles.csv'):
-            os.remove(f'{root}/stable-diffusion-webui/styles.csv')
-        gdown_func("19n4B46ey0egTwzC27dqE0A0PkHN58Uc_", f"{root}/stable-diffusion-webui/styles.csv")
-    print("========== Downloading styles.csv file from Google Drive...========== \n")
-    styles_down()
+# force get latest version of stable-diffusion-webui
+if force_update_webui:
+    update_git_repo("/path/to/your/repo", force_reset=True, update_submodules=True)
 
 #######################################
-#EMBEDDING MODELS
+# EMBEDDING MODELS
 #######################################
-
+# download embedding models as zip file from google drive, then unzip it
 if download_embedding_models:
     def embedding_gdown():
         output_path = f"{root}/stable-diffusion-webui/embeddings"  # 下载和解压的路径
@@ -204,7 +250,7 @@ if download_embedding_models:
     embedding_gdown()
 
 #######################################
-#CHECKPOINT MODELS
+# CHECKPOINT MODELS
 #######################################
 
 if download_checkpoints:
@@ -213,7 +259,7 @@ if download_checkpoints:
     download_files(checkpoint_models, checkpoint_model_path)
 
 #######################################
-#VAE
+# VAE
 #######################################
 
 if download_vae_models:
@@ -222,7 +268,7 @@ if download_vae_models:
     download_files(vae_models, vae_path)
 
 #######################################
-#LORAS
+# LORAS
 #######################################
 
 if download_lora:
@@ -231,7 +277,7 @@ if download_lora:
     download_files(lora_models, lora_path)
 
 #######################################
-#EXTENSIONS
+# EXTENSIONS
 #######################################
 
 if download_extensions:
@@ -251,96 +297,68 @@ if download_extensions:
     print("========== Downloading extensions...========== \n")
     download_extensions(extension_list)
 
-#######################################
-# CONTROLNET with all models
-# The Controlnet Application didnt work like above but the Runpod Template Fast SD had a better implementation then mine so i used that
-# Future improvement would be to get all extension installation in this format.
-# This uses the model list in the TheLastBen colab notebook
-
 if download_controlnet:
-    extensions_path = f"{root}/stable-diffusion-webui/extensions"
-    models_path = f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models"
-    cn_models_txt = f"{root}/CN_models.txt"
-    cn_models_v2_txt = f"{root}/CN_models_v2.txt"
+    def cn_model_download():
+        # set output paths
+        extensions_path = f"{root}/stable-diffusion-webui/extensions"
+        cn_models_path = f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models"
 
-    def wget_file(url, dest_path):
-        subprocess.run(['wget', '-q', '-O', dest_path, url], check=True)
+        def wget_file(url, dest_path):
+            subprocess.run(['wget', '--progress=bar:force', '-q', '-O', dest_path, url], check=True)
 
-    def clone_or_pull_repo(repo_url, dest_path):
-        if not os.path.exists(dest_path):
-            subprocess.run(['git', 'clone', repo_url, dest_path], check=True)
-        else:
-            current_dir = os.getcwd()
-            os.chdir(dest_path)
-            subprocess.run(['git', 'reset', '--hard'], check=True)
-            subprocess.run(['git', 'pull'], check=True)
-            os.chdir(current_dir)
+        def clone_or_pull_repo(repo_url, dest_path):
+            if not os.path.exists(dest_path):
+                subprocess.run(['git', 'clone', repo_url, dest_path], check=True)
+            else:
+                current_dir = os.getcwd()
+                os.chdir(dest_path)
+                subprocess.run(['git', 'reset', '--hard'], check=True)
+                subprocess.run(['git', 'pull'], check=True)
+                os.chdir(current_dir)
 
-    def copy_files(source, dest):
-        subprocess.run(['cp', source, dest], check=True)
+        def copy_files(source, dest):
+            subprocess.run(['cp', source, dest], check=True)
 
-    def download(url, model_dir):
-        filename = os.path.basename(urlparse(url).path)
-        dest_path = os.path.join(model_dir, filename)
-        if not os.path.exists(dest_path):
-            print(f"Downloading: {filename}")
-            wget_file(url, dest_path)
-        else:
-            print(f"The model {filename} already exists")
+        def download(url, model_dir):
+            filename = os.path.basename(urlparse(url).path)
+            dest_path = os.path.join(model_dir, filename)
+            if not os.path.exists(dest_path):
+                print(f"Downloading: {filename}")
+                wget_file(url, dest_path)
+            else:
+                print(f"The model {filename} already exists")
 
-    print("========== Downloading models...========== \n")
-    clone_or_pull_repo('https://github.com/Mikubill/sd-webui-controlnet.git', f"{extensions_path}/sd-webui-controlnet")
+        print("========== Cloning Controlnet Repo...========== \n")
+        # clone controlnet extension repo
+        clone_or_pull_repo('https://github.com/Mikubill/sd-webui-controlnet.git', f"{extensions_path}/sd-webui-controlnet")
 
-    for filename in os.listdir(models_path):
-        if "_sd14v1" in filename:
-            renamed = re.sub("_sd14v1", "-fp16", filename)
-            os.rename(os.path.join(models_path, filename), os.path.join(models_path, renamed))
-
-    wget_file('https://github.com/TheLastBen/fast-stable-diffusion/raw/main/AUTOMATIC1111_files/CN_models.txt', cn_models_txt)
-    wget_file('https://github.com/TheLastBen/fast-stable-diffusion/raw/main/AUTOMATIC1111_files/CN_models_v2.txt', cn_models_v2_txt)
-
-    with open(cn_models_txt, 'r') as f:
-        model_links = f.read().splitlines()
-    with open(cn_models_v2_txt, 'r') as d:
-        model_links_v2 = d.read().splitlines()
-
-    for link in model_links + model_links_v2:
-        download(link, models_path)
-
-    subprocess.run(['rm', cn_models_txt, cn_models_v2_txt], check=True)
-
-    config_names=[os.path.basename(url).split('.')[0]+'.yaml' for url in model_links_v2]
-    for name in config_names:
-        copy_files(f"{models_path}/cldm_v21.yaml", f"{models_path}/{name}")
-
+        # rename yaml files if contains _sd14v1
+        for filename in os.listdir(cn_models_path):
+            if "_sd14v1" in filename:
+                renamed = re.sub("_sd14v1", "-fp16", filename)
+                os.rename(os.path.join(cn_models_path, filename), os.path.join(cn_models_path, renamed))
+        
+        print("========== Downloading models...========== \n")
+        # download controlnet model from links
+        for link in controlnet_models:
+            download(link, cn_models_path)
+    cn_model_download()
 
 #######################################
-#other stuff
+# MISC
 #######################################
-# # change working directory
-# os.chdir(f"{root}/stable-diffusion-webui")
-# # reset git repository
-# result = os.system("git reset --hard")
-# if result == 0:
-#     print("Git repository reset successfully!")
-# else:
-#     print("An error occurred while resetting Git repository.")
 
-# # install controlnet requirements In another script it was called at this point after the reset, so I left it here.
-# # change working directory
-# os.chdir(f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet")
+# download styles.csv file from google drive
+if download_styles:
+    def styles_down():
+        if os.path.exists(f'{root}/stable-diffusion-webui/styles.csv'):
+            os.remove(f'{root}/stable-diffusion-webui/styles.csv')
+        gdown_func("19n4B46ey0egTwzC27dqE0A0PkHN58Uc_", f"{root}/stable-diffusion-webui/styles.csv")
+    print("========== Downloading styles.csv file from Google Drive...========== \n")
+    styles_down()
 
-# result = os.system("pip install -r requirements.txt")
-# if result == 0:
-#     print("Requirements.txt installed successfully!")
-# else:
-#     print("An error occurred while installing the requirements.txt")
-
-# # change working directory to stable-diffusion-webui
-# os.chdir(f"{root}/stable-diffusion-webui/")
-
+# modify relauncher.py file
 if edit_relauncher:
-    # modify relauncher.py file
     def modify_relauncherfile(filename):
         with open(filename, 'r') as file:
             lines = file.readlines()
@@ -352,8 +370,8 @@ if edit_relauncher:
     print("========== Modifying relauncher.py file...========== \n")
     modify_relauncherfile(f'{root}/stable-diffusion-webui/relauncher.py')
 
+# modify webui-user.sh file
 if edit_webui_user:
-    # modify webui-user.sh file
     def modify_webui_userfile(flags):
         filename = f'{root}/stable-diffusion-webui/webui-user.sh'  # 更新为你的文件路径
         with open(filename, "r") as file:
@@ -365,23 +383,11 @@ if edit_webui_user:
     print("========== Modifying webui-user.sh file...========== \n")
     modify_webui_userfile(flags)
 
+#######################################
+# UPDATE XFORMERS, CUDA, CUDNN AND TORCH
+#######################################
 
-# took this from the google colab code I used before. No idea why it changes that line and it doesn't work. so off it goes... (I know I'm a mess)
-# Replace `prepare_environment()` with `prepare_environment():`
-#os.system(f"""sed -i -e '/prepare_environment():/a\    os.system(f\\"sed -i -e ''\\"s/dict()))/dict())).cuda()/g\\"'' {root}/stable-diffusion-#webui/repositories/stable-diffusion-stability-ai/ldm/util.py" {root}/stable-diffusion-webui/launch.py""")
-#os.system(f"""cd {root}/stable-diffusion-webui/repositories/k-diffusion; git config core.filemode false""")
-
-#I cant get this to work, so I'm uploading a custom webur-user.sh for now and start using relauncher.py included in the sd template
-
-#args = "--port 3010 --gradio-img2img-tool color-sketch -- share --listen --enable-insecure-extension-access --gradio-queue --xformers"
-#SET USERNAME AND PASSWORD
-#username = "Lennart"
-#password = "C"
-#if username and password:
-#    args += f" --gradio-auth {username}:{password} "
-#cmd = f"python {root}/stable-diffusion-webui/launch.py {args}"
-#result = os.system(cmd)
-
+# https://github.com/FurkanGozukara/Stable-Diffusion/blob/main/Tutorials/How-To-Install-DreamBooth-Extension-On-RunPod.md
 # make a1111 use the newest torch version, found this online...
 # call('pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu118', shell=True)
 
