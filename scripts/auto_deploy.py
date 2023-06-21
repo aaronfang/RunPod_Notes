@@ -9,7 +9,7 @@
 #######################################
 
 import importlib
-import subprocess
+from subprocess import call, getoutput, Popen, run
 import sys
 
 REQUIRED_PACKAGES = [
@@ -32,7 +32,8 @@ for package in REQUIRED_PACKAGES:
     try:
         importlib.import_module(package)
     except ImportError:
-        subprocess.call([sys.executable, "-m", "pip", "install", package])
+        run([sys.executable, "-m", "pip", "install", package])
+
 
 
 
@@ -41,11 +42,9 @@ for package in REQUIRED_PACKAGES:
 import os
 import shutil
 from IPython.display import clear_output
-from subprocess import call, getoutput, Popen, run
 import time
 import ipywidgets as widgets
 import requests
-import sys
 import fileinput
 from torch.hub import download_url_to_file
 from urllib.parse import urlparse
@@ -60,8 +59,9 @@ import zipfile
 #### SET YOUR ROOT HERE 
 root = "/workspace"
 
-#### SET YOUR WEBUI-USER FLAGS --force-enable-xformers --xformers --no-half --no-half-vae --opt-split-attention --opt-channelslast --opt-sdp-no-mem-attention
-flags = "--opt-sdp-attention --port 3001 --listen --enable-insecure-extension-access --api --theme=dark"
+#### SET YOUR WEBUI-USER FLAGS #--force-enable-xformers --xformers --no-half --no-half-vae --opt-split-attention --opt-channelslast --opt-sdp-no-mem-attention 
+                                #--xformers --port 3001 --listen --enable-insecure-extension-access --skip-install
+flags = "--opt-sdp-attention --port 3001 --listen --enable-insecure-extension-access --api --theme=dark --xformers --skip-install"
 
 #### SET EXTENSIONS
 extension_list = [
@@ -76,7 +76,8 @@ extension_list = [
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
                     "https://github.com/civitai/sd_civitai_extension",
                     "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
-                    "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards"
+                    "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards",
+                    "https://github.com/d8ahazard/sd_dreambooth_extension"
                 ]
 
 #### SET CHECKPOINT MODELS
@@ -304,20 +305,20 @@ if download_controlnet:
         cn_models_path = f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models"
 
         def wget_file(url, dest_path):
-            subprocess.run(['wget', '--progress=bar:force', '-q', '-O', dest_path, url], check=True)
+            run(['wget', '--progress=bar:force', '-q', '-O', dest_path, url], check=True)
 
         def clone_or_pull_repo(repo_url, dest_path):
             if not os.path.exists(dest_path):
-                subprocess.run(['git', 'clone', repo_url, dest_path], check=True)
+                run(['git', 'clone', repo_url, dest_path], check=True)
             else:
                 current_dir = os.getcwd()
                 os.chdir(dest_path)
-                subprocess.run(['git', 'reset', '--hard'], check=True)
-                subprocess.run(['git', 'pull'], check=True)
+                run(['git', 'reset', '--hard'], check=True)
+                run(['git', 'pull'], check=True)
                 os.chdir(current_dir)
 
         def copy_files(source, dest):
-            subprocess.run(['cp', source, dest], check=True)
+            run(['cp', source, dest], check=True)
 
         def download(url, model_dir):
             filename = os.path.basename(urlparse(url).path)
@@ -390,6 +391,57 @@ if edit_webui_user:
 # https://github.com/FurkanGozukara/Stable-Diffusion/blob/main/Tutorials/How-To-Install-DreamBooth-Extension-On-RunPod.md
 # make a1111 use the newest torch version, found this online...
 # call('pip install torch torchvision --extra-index-url https://download.pytorch.org/whl/cu118', shell=True)
+
+webui_path = os.path.join(root, "stable-diffusion-webui")
+venv_path = os.path.join(root, "venv")
+extensions_path = os.path.join(webui_path, "extensions")
+
+def run_cmd(cmd, cwd=None):
+    run(cmd, cwd=cwd, shell=True, check=True)
+
+# get latest webui repo
+run_cmd("git checkout master", cwd=webui_path)
+run_cmd("git pull", cwd=webui_path)
+
+# remove venv folder
+if os.path.exists(venv_path):
+    shutil.rmtree(venv_path)
+
+# kill port 3000, then launch webui
+run_cmd("fuser -k 3000/tcp")
+run_cmd("python relauncher.py", cwd=webui_path)
+
+# kill port 3000 again, then install xformers package
+run_cmd("fuser -k 3000/tcp")
+run_cmd("pip install xformers==dev")
+
+# reinstall torch, torchvision and torchaudio
+run_cmd("yes | pip uninstall torch torchvision torchaudio")
+run_cmd("yes | pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
+
+# update packages, install cuda and cudnn
+run_cmd("apt update")
+run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
+
+# install requirement for dreambooth extension
+requirements_path = os.path.join(extensions_path, "sd_dreambooth_extension/requirements.txt")
+run_cmd(f"pip install -r {requirements_path}")
+
+# edit webui-user.sh: please provide the detail command, it is not clear from the bash version.
+
+# kill port 3000 and relaunch webui
+run_cmd("fuser -k 3000/tcp")
+run_cmd("python relauncher.py", cwd=webui_path)
+
+# restart runpod
+run_cmd("runpodctl restart")
+
+# after restart runpod, make sure cuda and cudnn updated to specific version, then restart webui
+run_cmd("fuser -k 3000/tcp")
+run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
+run_cmd("python relauncher.py", cwd=webui_path)
+
+
 
 # kill port 3000
 os.system("fuser -k 3000/tcp")
