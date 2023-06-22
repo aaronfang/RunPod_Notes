@@ -10,8 +10,8 @@ install_dir="/workspace"
 #clone_dir="stable-diffusion-webui"
 
 # Commandline arguments for webui.py, for example: export COMMANDLINE_ARGS="--medvram --opt-split-attention"
-export COMMANDLINE_ARGS="--xformers --port 3000 --listen --enable-insecure-extension-access --skip-install"
-#export XFORMERS_PACKAGE="xformers==0.0.17.dev447"
+export COMMANDLINE_ARGS="--opt-sdp-attention --port 3000 --listen --enable-insecure-extension-access --api --theme=dark --xformers"
+export XFORMERS_PACKAGE="xformers==0.0.20"
 
 # python3 executable
 #python_cmd="python3"
@@ -45,3 +45,4 @@ export TORCH_COMMAND="pip install torch torchvision torchaudio --index-url https
 # export ACCELERATE="True"
 
 ###########################################
+
