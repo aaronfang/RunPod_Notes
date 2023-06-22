@@ -39,6 +39,7 @@ REQUIRED_PACKAGES = [
     'urllib', 
     're', 
     'zipfile',
+    'pyperclip',
     'tqdm'
 ]
 
@@ -84,6 +85,7 @@ extension_list = [
                     "https://github.com/ArtVentureX/sd-webui-agent-scheduler",
                     "https://github.com/kohya-ss/sd-webui-additional-networks",
                     "https://github.com/huchenlei/sd-webui-openpose-editor",
+                    "https://github.com/camenduru/stable-diffusion-webui-images-browser",
                     "https://github.com/zanllp/sd-webui-infinite-image-browsing",
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
                     "https://github.com/civitai/sd_civitai_extension",
@@ -95,7 +97,7 @@ extension_list = [
 checkpoint_models = [   
                         "https://civitai.com/api/download/models/77276", # perfect world v4
                         "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
-                        # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
+                        "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
                     ]
 
 ### SET LORA MODELS
@@ -108,7 +110,7 @@ lora_models = [
 #### SET VAE
 vae_models = [
                 "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.ckpt",
-                # "https://civitai.com/api/download/models/88156" # ClearVAE
+                "https://civitai.com/api/download/models/88156" # ClearVAE
             ]
 
 ### SET CONTROLNET MODELS
@@ -123,10 +125,10 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
                     ]
 
 #######################################
@@ -299,22 +301,6 @@ if download_embedding_models:
     embedding_gdown()
 
 #######################################
-# WILDCARDS
-#######################################
-
-if download_wildcards:
-    def wildcards_gdown():
-        output_path = f"{root}/stable-diffusion-webui/extensions/stable-diffusion-webui-wildcards"  # 下载和解压的路径
-        zip_file_path = os.path.join(output_path, 'wildcards.zip')  # 这是在output_path目录下的file.zip
-        gdown_func("1wzSyB6uOrmcGjD9eue4SPfrZfCX1LQfn", zip_file_path)
-        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-            zip_ref.extractall(output_path)
-        os.remove(zip_file_path)
-    print("========== Downloading wildcards files from Google Drive...========== \n")
-    wildcards_gdown()
-
-
-#######################################
 # CHECKPOINT MODELS
 #######################################
 
@@ -402,6 +388,22 @@ if download_controlnet:
 # MISC
 #######################################
 
+# download wildcards files as zip file from google drive, then unzip it
+if download_wildcards:
+    def wildcards_gdown():
+        output_path = f"{root}/stable-diffusion-webui/extensions/stable-diffusion-webui-wildcards"  # 下载和解压的路径
+        # 检查output_path是否存在，不存在则返回并不执行后续工作
+        if not os.path.exists(output_path):
+            print(f"{output_path} doesn't exist. Skipping copy wildcard resources.")
+            return
+        zip_file_path = os.path.join(output_path, 'wildcards.zip')  # 这是在output_path目录下的file.zip
+        gdown_func("1wzSyB6uOrmcGjD9eue4SPfrZfCX1LQfn", zip_file_path)
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall(output_path)
+        os.remove(zip_file_path)
+    print("========== Downloading wildcards files from Google Drive...========== \n")
+    wildcards_gdown()
+
 # download styles.csv file from google drive
 if download_styles:
     def styles_down():
@@ -430,6 +432,10 @@ if update_venv:
     # replace webui-user.sh
     shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
     print("========== webui-user.sh Replaced ==========")
+
+    # replace config.json
+    shutil.move('/workspace/config.json', '/workspace/stable-diffusion-webui/config.json')
+    print("========== config.json Replaced ==========")
 
 print("========== All Done! ==========")
 
