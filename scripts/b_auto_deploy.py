@@ -10,6 +10,7 @@ download_checkpoints = True
 download_lora = True
 download_vae_models = True
 download_embedding_models = True
+download_wildcards = True
 download_extensions = True
 download_controlnet = True
 download_styles = True
@@ -86,20 +87,21 @@ extension_list = [
                     "https://github.com/zanllp/sd-webui-infinite-image-browsing",
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
                     "https://github.com/civitai/sd_civitai_extension",
-                    "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
+                    # "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
                     "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards"
                 ]
 
 #### SET CHECKPOINT MODELS
 checkpoint_models = [   
                         "https://civitai.com/api/download/models/77276", # perfect world v4
-                        # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
+                        "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
+                        # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
                     ]
 
 ### SET LORA MODELS
 lora_models = [
                 "https://civitai.com/api/download/models/96573", # 3DMM
-                # "https://civitai.com/api/download/models/87153", # more_details
+                "https://civitai.com/api/download/models/87153", # more_details
 
             ]
 
@@ -113,10 +115,10 @@ vae_models = [
 controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_shuffle.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
@@ -262,6 +264,17 @@ def download_files(urls, output_path):
             print(f"An error occurred while downloading {url}.")
 
 #######################################
+# DELETE A_EDIT_RELAUNCHER.PY
+#######################################
+
+file_path = f'{root}/a_edit_relauncher.py'
+if os.path.exists(file_path):
+    os.remove(file_path)
+    print(f"File '{file_path}' has been deleted.")
+else:
+    print(f"File '{file_path}' does not exist.")
+
+#######################################
 # UPDATE WEBUI REPO
 #######################################
 
@@ -269,9 +282,6 @@ def download_files(urls, output_path):
 if force_update_webui:
     print("========== Force Updating webui Repo to the Latest...========== \n")
     update_git_repo(webui_path, force_reset=True, update_submodules=False)
-else:
-    print("========== Updating webui Repo to the Latest...========== \n")
-    update_git_repo(webui_path, force_reset=False, update_submodules=False)
 
 #######################################
 # EMBEDDING MODELS
@@ -287,6 +297,22 @@ if download_embedding_models:
         os.remove(zip_file_path)
     print("========== Downloading embedding files from Google Drive...========== \n")
     embedding_gdown()
+
+#######################################
+# WILDCARDS
+#######################################
+
+if download_wildcards:
+    def wildcards_gdown():
+        output_path = f"{root}/stable-diffusion-webui/extensions/stable-diffusion-webui-wildcards"  # 下载和解压的路径
+        zip_file_path = os.path.join(output_path, 'wildcards.zip')  # 这是在output_path目录下的file.zip
+        gdown_func("1wzSyB6uOrmcGjD9eue4SPfrZfCX1LQfn", zip_file_path)
+        with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+            zip_ref.extractall(output_path)
+        os.remove(zip_file_path)
+    print("========== Downloading wildcards files from Google Drive...========== \n")
+    wildcards_gdown()
+
 
 #######################################
 # CHECKPOINT MODELS
@@ -335,14 +361,6 @@ if download_extensions:
                 print(f"An error occurred while cloning {extension}.")
     print("========== Downloading extensions...========== \n")
     download_extensions(extension_list)
-
-    # # install requirement for dreambooth extension
-    # dreambooth_path = os.path.join(extensions_path, "sd_dreambooth_extension")
-    # requirements_path = os.path.join(dreambooth_path, "requirements.txt")
-    # if os.path.exists(dreambooth_path):
-    #     run_cmd(f"pip install -r {requirements_path}")
-    # else:
-    #     print("Dreambooth extension does not exist. Skipping installation of its dependencies.")
 
 if download_controlnet:
     def download_with_progress(url, dest_path):
@@ -410,7 +428,7 @@ if update_venv:
     run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
 
     # replace webui-user.sh
-    shutil.move('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
+    shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
     print("========== webui-user.sh Replaced ==========")
 
 print("========== All Done! ==========")
