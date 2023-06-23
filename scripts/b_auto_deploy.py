@@ -85,19 +85,22 @@ extension_list = [
                     "https://github.com/ArtVentureX/sd-webui-agent-scheduler",
                     "https://github.com/kohya-ss/sd-webui-additional-networks",
                     "https://github.com/huchenlei/sd-webui-openpose-editor",
-                    "https://github.com/camenduru/stable-diffusion-webui-images-browser",
                     "https://github.com/zanllp/sd-webui-infinite-image-browsing",
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
-                    "https://github.com/civitai/sd_civitai_extension",
+                    "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards",
+                    "https://github.com/camenduru/stable-diffusion-webui-images-browser",
+                    # "https://github.com/civitai/sd_civitai_extension",
                     # "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
-                    "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards"
                 ]
 
 #### SET CHECKPOINT MODELS
 checkpoint_models = [   
                         "https://civitai.com/api/download/models/77276", # perfect world v4
-                        "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
-                        "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
+                        # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
+                        # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
+                        "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
+                        # "google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
+                        # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
                     ]
 
 ### SET LORA MODELS
@@ -110,7 +113,7 @@ lora_models = [
 #### SET VAE
 vae_models = [
                 "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.ckpt",
-                "https://civitai.com/api/download/models/88156" # ClearVAE
+                # "https://civitai.com/api/download/models/88156" # ClearVAE
             ]
 
 ### SET CONTROLNET MODELS
@@ -125,10 +128,10 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
                     ]
 
 #######################################
@@ -245,20 +248,25 @@ def update_git_repo(repo_path, repo_url=None, force_reset=False, update_submodul
             else:
                 print(f"An error occurred while updating submodules in {repo_path}.")
 
-
 # download function from google drive
 def gdown_func(id, output):
-    url = f'https://drive.google.com/uc?id={id}'
-    gdown.download(url, output, quiet=False)
+    run_cmd(f"gdown {id}", cwd=output)
 
 # download function from url
 def download_files(urls, output_path):
     for url in urls:
         parsed_url = urlparse(url)
-        command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M {url} -d {output_path}"
-        if 'civitai' not in parsed_url.netloc:
+        command = ""
+
+        if 'civitai' in parsed_url.netloc:
+            command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M {url} -d {output_path}"
+        elif 'huggingface' in parsed_url.netloc:
             filename = url.split('/')[-1]  # 获取url中的文件名
             command = f"aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -o {filename} {url} -d {output_path}"
+        elif 'google_drive_id' in url:
+            gdown_func(url.split(':')[-1], output_path)
+            continue
+
         result = os.system(command)
         if result == 0:
             print(f"{url} downloaded successfully!")
