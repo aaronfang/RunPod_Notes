@@ -1,0 +1,6 @@
+IPython
+ipywidgets
+requests
+torch
+pyperclip
+tqdm
