@@ -66,6 +66,7 @@ from urllib.parse import urlparse
 import re
 import zipfile
 from tqdm import tqdm
+import gdown
 
 #######################################
 # VARIABLES
@@ -98,8 +99,8 @@ checkpoint_models = [
                         "https://civitai.com/api/download/models/77276", # perfect world v4
                         # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
                         # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
-                        "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
-                        # "google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
+                        # "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
+                        "google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
                         # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
                     ]
 
@@ -147,8 +148,6 @@ if init_packages:
         print("gdown successfully installed!")
     except Exception as e:
         print("An error occurred while installing gdown:", e)
-        
-    import gdown
 
     result = os.system("apt-get update")
     if result == 0:
@@ -301,7 +300,7 @@ if download_embedding_models:
     def embedding_gdown():
         output_path = f"{root}/stable-diffusion-webui/embeddings"  # 下载和解压的路径
         zip_file_path = os.path.join(output_path, 'embeddings.zip')  # 这是在output_path目录下的file.zip
-        gdown_func("1-EXxOitLlXq-uRmGcuTFraRPV1pv3qUQ", zip_file_path)
+        gdown_func("1-EXxOitLlXq-uRmGcuTFraRPV1pv3qUQ", output_path)
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(output_path)
         os.remove(zip_file_path)
@@ -405,7 +404,7 @@ if download_wildcards:
             print(f"{output_path} doesn't exist. Skipping copy wildcard resources.")
             return
         zip_file_path = os.path.join(output_path, 'wildcards.zip')  # 这是在output_path目录下的file.zip
-        gdown_func("1wzSyB6uOrmcGjD9eue4SPfrZfCX1LQfn", zip_file_path)
+        gdown_func("1wzSyB6uOrmcGjD9eue4SPfrZfCX1LQfn", output_path)
         with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
             zip_ref.extractall(output_path)
         os.remove(zip_file_path)
@@ -417,7 +416,7 @@ if download_styles:
     def styles_down():
         if os.path.exists(f'{root}/stable-diffusion-webui/styles.csv'):
             os.remove(f'{root}/stable-diffusion-webui/styles.csv')
-        gdown_func("19n4B46ey0egTwzC27dqE0A0PkHN58Uc_", f"{root}/stable-diffusion-webui/styles.csv")
+        gdown_func("19n4B46ey0egTwzC27dqE0A0PkHN58Uc_", f"{root}/stable-diffusion-webui/")
     print("========== Downloading styles.csv file from Google Drive...========== \n")
     styles_down()
 
