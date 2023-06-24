@@ -81,7 +81,7 @@ extensions_path = os.path.join(webui_path, "extensions")
 #### SET EXTENSIONS
 extension_list = [
                     "https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper",
-                    "https://jihulab.com/hunter0725/a1111-sd-webui-tagcomplete",
+                    "https://github.com/DominikDoom/a1111-sd-webui-tagcomplete",
                     "https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111",
                     "https://github.com/ArtVentureX/sd-webui-agent-scheduler",
                     "https://github.com/kohya-ss/sd-webui-additional-networks",
@@ -100,14 +100,14 @@ checkpoint_models = [
                         # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
                         # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
                         # "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
-                        "google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
+                        #"google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
                         # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
                     ]
 
 ### SET LORA MODELS
 lora_models = [
                 "https://civitai.com/api/download/models/96573", # 3DMM
-                "https://civitai.com/api/download/models/87153", # more_details
+                #"https://civitai.com/api/download/models/87153", # more_details
 
             ]
 
@@ -124,7 +124,7 @@ controlnet_models = [
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
+                        #"https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
