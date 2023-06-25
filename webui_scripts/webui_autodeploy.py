@@ -56,6 +56,7 @@ for package in REQUIRED_PACKAGES:
 #######################################
 
 import os
+import subprocess
 import shutil
 from IPython.display import clear_output
 import time
@@ -131,7 +132,7 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
@@ -181,6 +182,13 @@ if init_packages:
 #######################################
 # FUNCTIONS
 #######################################
+
+def is_package_installed(package):
+    try:
+        subprocess.check_call(["dpkg", "-s", package], stdout=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return False
+    return True
 
 # function to run bash command
 def run_cmd(cmd, cwd=None):
@@ -464,13 +472,25 @@ if update_venv:
     # install xformers
     run_cmd(f"{pip_path} install xformers==0.0.20")
 
+    # pip install sqlalchemy
+    run_cmd(f"{pip_path} install sqlalchemy")
+
     # reinstall torch, torchvision and torchaudio
     run_cmd(f"yes | {pip_path} uninstall torch torchvision torchaudio")
     run_cmd(f"yes | {pip_path} install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
 
     # update packages, install cuda and cudnn
-    run_cmd("apt update")
-    run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
+    # run_cmd("apt update")
+    # run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
+
+    # 列出需要检查的库
+    libraries = ["libcudnn8=8.9.2.26-1+cuda11.8", "libcudnn8-dev=8.9.2.26-1+cuda11.8"]
+
+    # 检查每个库是否已经安装
+    for lib in libraries:
+        if not is_package_installed(lib):
+            print(f"Installing {lib}...")
+            subprocess.run(["apt", "install", "-y", lib, "--allow-change-held-packages"], check=True)
 
 # replace webui-user.sh
 shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
