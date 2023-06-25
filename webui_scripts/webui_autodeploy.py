@@ -6,6 +6,7 @@
 
 init_packages = True
 force_update_webui = False
+edit_relauncher = True
 download_checkpoints = True
 download_lora = True
 download_vae_models = True
@@ -77,6 +78,7 @@ root = "/workspace"
 webui_path = os.path.join(root, "stable-diffusion-webui")
 venv_path = os.path.join(root, "venv")
 extensions_path = os.path.join(webui_path, "extensions")
+scripts_path = os.path.join(webui_path, "scripts")
 
 #### SET EXTENSIONS
 extension_list = [
@@ -182,7 +184,7 @@ if init_packages:
 
 # function to run bash command
 def run_cmd(cmd, cwd=None):
-    run(cmd, cwd=cwd, shell=True, check=True, )
+    run(cmd, cwd=cwd, shell=True, check=True)
 
 def run_cmd_return(cmd):
     result = run(cmd, shell=True, capture_output=True, text=True)
@@ -272,16 +274,52 @@ def download_files(urls, output_path):
         else:
             print(f"An error occurred while downloading {url}.")
 
+# download file from github
+def download_file_from_github(repo_owner, repo_name, file_path, save_dir):
+    base_url = "https://raw.githubusercontent.com"
+    file_url = os.path.join(base_url, repo_owner, repo_name, 'main', file_path)
+    
+    response = requests.get(file_url)
+    
+    # make sure that the request was successful
+    if response.status_code == 200:
+        # make sure the save_dir exists
+        os.makedirs(save_dir, exist_ok=True)
+        
+        with open(os.path.join(save_dir, os.path.basename(file_path)), 'wb') as f:
+            f.write(response.content)
+    else:
+        print(f"Failed to download file. HTTP Status Code: {response.status_code}")
+
+def download_with_progress(url, dest_path):
+        filename = os.path.basename(urlparse(url).path)
+        response = requests.get(url, stream=True)
+        total_length = int(response.headers.get('content-length', 0))
+
+        with open(dest_path, "wb") as file, tqdm(
+            desc=f"Downloading {filename}", total=total_length, unit="B", unit_scale=True
+        ) as progress_bar:
+            for data in response.iter_content(chunk_size=4096):
+                file.write(data)
+                progress_bar.update(len(data))
+
 #######################################
-# DELETE A_EDIT_RELAUNCHER.PY
+# PRINT CURRENT HARDWARE
+#######################################
+run_cmd("nvidia-smi")
+
+#######################################
+# MODIFY RELAUNCHER.PY
 #######################################
 
-file_path = f'{root}/a_edit_relauncher.py'
-if os.path.exists(file_path):
-    os.remove(file_path)
-    print(f"File '{file_path}' has been deleted.")
-else:
-    print(f"File '{file_path}' does not exist.")
+if edit_relauncher:
+    file_path = os.path.join(webui_path,'relauncher.py')
+    old_text = 'while True:'
+    new_text = 'while (n<1):'
+
+    replace_text_in_file(file_path, old_text, new_text)
+
+    print("========== relauncher.py modified. Please Restart Pod...========== \n")
 
 #######################################
 # UPDATE WEBUI REPO
@@ -355,19 +393,12 @@ if download_extensions:
     print("========== Downloading extensions...========== \n")
     download_extensions(extension_list)
 
+    # download AutoChar to script folder - https://github.com/alexv0iceh/AutoChar
+    print("========== Downloading AutoChar Script...========== \n")
+    download_file_from_github('alexv0iceh', 'AutoChar', 'AutoChar_v08_release.py', scripts_path)
+    download_file_from_github('alexv0iceh', 'AutoChar', 'face_detection_yunet_2022mar.onnx', scripts_path)
+
 if download_controlnet:
-    def download_with_progress(url, dest_path):
-        filename = os.path.basename(urlparse(url).path)
-        response = requests.get(url, stream=True)
-        total_length = int(response.headers.get('content-length', 0))
-
-        with open(dest_path, "wb") as file, tqdm(
-            desc=f"Downloading {filename}", total=total_length, unit="B", unit_scale=True
-        ) as progress_bar:
-            for data in response.iter_content(chunk_size=4096):
-                file.write(data)
-                progress_bar.update(len(data))
-
     def cn_model_download():
         extensions_path = f"{root}/stable-diffusion-webui/extensions"
         cn_models_path = f"{root}/stable-diffusion-webui/extensions/sd-webui-controlnet/models"
@@ -384,12 +415,12 @@ if download_controlnet:
             filename = os.path.basename(urlparse(link).path)
             dest_path = os.path.join(cn_models_path, filename)
             if not os.path.exists(dest_path):
+                print(f"========== {filename} not in path {cn_models_path}, downloading... ========== \n")
                 download_with_progress(link, dest_path)
             else:
-                print(f"The model {filename} already exists")
+                print(f"========== The model {filename} already exists ========== \n")
 
     cn_model_download()
-
 
 #######################################
 # MISC
@@ -425,29 +456,33 @@ if download_styles:
 #######################################
 
 if update_venv:
-    # kill port 3000 if needed
-    kill_port_if_occupied(3000)
+    # kill_port_if_occupied(3000)
+
+    # pip path in venv
+    pip_path = f"{venv_path}/bin/pip"
+    
+    # install xformers
+    run_cmd(f"{pip_path} install xformers==0.0.20")
 
     # reinstall torch, torchvision and torchaudio
-    run_cmd("yes | pip uninstall torch torchvision torchaudio")
-    run_cmd("yes | pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
+    run_cmd(f"yes | {pip_path} uninstall torch torchvision torchaudio")
+    run_cmd(f"yes | {pip_path} install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
 
     # update packages, install cuda and cudnn
     run_cmd("apt update")
     run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
 
-    # replace webui-user.sh
-    shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
-    print("========== webui-user.sh Replaced ==========")
+# replace webui-user.sh
+shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
+print("========== webui-user.sh Replaced ==========")
 
-    # replace config.json
-    shutil.move('/workspace/config.json', '/workspace/stable-diffusion-webui/config.json')
-    print("========== config.json Replaced ==========")
+# replace config.json
+shutil.copy('/workspace/config.json', '/workspace/stable-diffusion-webui/config.json')
+print("========== config.json Replaced ==========")
 
 print("========== All Done! ==========")
 
 if launch_webui:
-    # kill port 3000 if needed
-    kill_port_if_occupied(3000)
+    # kill_port_if_occupied(3000)
     # launch webui
     run_cmd("python relauncher.py", cwd=webui_path)

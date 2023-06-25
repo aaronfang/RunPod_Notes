@@ -10,8 +10,8 @@ install_dir="/workspace"
 #clone_dir="stable-diffusion-webui"
 
 # Commandline arguments for webui.py, for example: export COMMANDLINE_ARGS="--medvram --opt-split-attention"
-export COMMANDLINE_ARGS="--opt-sdp-attention --port 3000 --listen --enable-insecure-extension-access --api --theme=dark --xformers"
-export XFORMERS_PACKAGE="xformers==0.0.20"
+export COMMANDLINE_ARGS="--opt-sdp-attention --listen --enable-insecure-extension-access --api --theme=dark --xformers --skip-install"
+#export XFORMERS_PACKAGE="xformers==0.0.20"
 
 # python3 executable
 #python_cmd="python3"
@@ -26,7 +26,7 @@ venv_dir="/workspace/venv"
 #export LAUNCH_SCRIPT="launch.py"
 
 # install command for torch
-export TORCH_COMMAND="pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118"
+#export TORCH_COMMAND="pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118"
 
 # Requirements file to use for stable-diffusion-webui
 #export REQS_FILE="./extensions/sd_dreambooth_extension/requirements.txt"
