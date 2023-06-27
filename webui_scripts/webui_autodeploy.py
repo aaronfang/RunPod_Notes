@@ -183,13 +183,6 @@ if init_packages:
 # FUNCTIONS
 #######################################
 
-def is_package_installed(package):
-    try:
-        subprocess.check_call(["dpkg", "-s", package], stdout=subprocess.DEVNULL)
-    except subprocess.CalledProcessError:
-        return False
-    return True
-
 # function to run bash command
 def run_cmd(cmd, cwd=None):
     run(cmd, cwd=cwd, shell=True, check=True)
@@ -464,8 +457,6 @@ if download_styles:
 #######################################
 
 if update_venv:
-    # kill_port_if_occupied(3000)
-
     # pip path in venv
     pip_path = f"{venv_path}/bin/pip"
     
@@ -479,18 +470,24 @@ if update_venv:
     run_cmd(f"yes | {pip_path} uninstall torch torchvision torchaudio")
     run_cmd(f"yes | {pip_path} install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118")
 
-    # update packages, install cuda and cudnn
-    # run_cmd("apt update")
-    # run_cmd("yes | apt install -y libcudnn8=8.9.2.26-1+cuda11.8 libcudnn8-dev=8.9.2.26-1+cuda11.8 --allow-change-held-packages")
-
     # 列出需要检查的库
     libraries = ["libcudnn8=8.9.2.26-1+cuda11.8", "libcudnn8-dev=8.9.2.26-1+cuda11.8"]
 
     # 检查每个库是否已经安装
     for lib in libraries:
-        if not is_package_installed(lib):
+        package_name, package_version = lib.split('=')
+        
+        # 检查当前已安装版本
+        result = subprocess.run(["apt-cache", "policy", package_name], capture_output=True, text=True)
+        installed_line = [line for line in result.stdout.split('\n') if 'Installed:' in line][0]
+        installed_version = installed_line.split(':')[1].strip()
+        
+        # 如果未安装或版本不匹配
+        if installed_version == '(none)' or installed_version != package_version:
             print(f"Installing {lib}...")
             subprocess.run(["apt", "install", "-y", lib, "--allow-change-held-packages"], check=True)
+        else:
+            print(f"{lib} is already installed.")
 
 # replace webui-user.sh
 shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
@@ -503,6 +500,5 @@ print("========== config.json Replaced ==========")
 print("========== All Done! ==========")
 
 if launch_webui:
-    # kill_port_if_occupied(3000)
     # launch webui
     run_cmd("python relauncher.py", cwd=webui_path)
