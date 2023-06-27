@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Clone the repository
-if [ ! -d "kohya_ss" ]; then
+if [ ! -d "lora-scripts" ]; then
   git clone --recurse-submodules https://github.com/Akegarasu/lora-scripts
 fi
 
