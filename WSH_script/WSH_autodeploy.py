@@ -1,15 +1,9 @@
-#@title ##初始化常量与挂载谷歌硬盘（只要重启过colab就要再运行一次）
-
-#@markdown 是否挂载谷歌硬盘（推荐）
-use_google_drive = True #@param {type:"boolean"}
-
 import os
 import shutil
+import subprocess
 import sys
-from google.colab import drive
 
-
-ROOT_DIR = os.getcwd()    #获取根目录
+ROOT_DIR = '/workspace/WSH_lora_script'    #获取根目录
 
 SD_SCRIPTS_DIR = os.path.join( ROOT_DIR, "sd-scripts" )    #kohya库克隆路径
 WEBUI_DIR = os.path.join( ROOT_DIR, "kohya-config-webui" )   #webui库克隆路径
@@ -28,13 +22,7 @@ DEFAULT_COLAB_WEBUI_SAVE_DIR = os.path.normpath("/content/drive/MyDrive/Lora/koh
 ACCELERATE_CONFIG_PATH = os.path.join( ROOT_DIR, "accelerate_config.yaml" )   #accelerate库config文件写入地址
 
 
-#@title ##挂载谷歌硬盘
-
-if use_google_drive:
-    if not os.path.exists("/content/drive"):
-        drive.mount("/content/drive")
-
-!nvidia-smi
+subprocess.run('nvidia-smi', shell=True, check=True)    #查看GPU信息
 
 #训练用环境变量
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -43,12 +31,11 @@ os.environ["SAFETENSORS_FAST_GPU"] = "1"
 
 
 
-
 #@title ##克隆github的库、安装依赖
 os.chdir( ROOT_DIR )
-!git clone https://github.com/kohya-ss/sd-scripts.git {SD_SCRIPTS_DIR}
+subprocess.run(['git', 'clone', 'https://github.com/kohya-ss/sd-scripts.git'], SD_SCRIPTS_DIR, check=True)
 #@title 克隆我的库
-!git clone https://github.com/WSH032/kohya-config-webui.git {WEBUI_DIR}
+subprocess.run(['git', 'clone', 'https://github.com/WSH032/kohya-config-webui.git'], WEBUI_DIR, check=True)
 
 #安装torch
 print(f"torch安装中")
