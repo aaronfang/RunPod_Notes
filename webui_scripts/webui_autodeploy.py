@@ -16,7 +16,7 @@ download_extensions = True
 download_controlnet = True
 download_styles = True
 update_venv = True
-launch_webui = True
+launch_webui = False
 
 #######################################
 # CHECK FOR PACKAGES AND INSTALL IF NOT AVAILABLE
