@@ -5,7 +5,7 @@
 #######################################
 
 init_packages = True
-force_update_webui = False
+force_update_webui = True
 edit_relauncher = True
 download_checkpoints = True
 download_lora = True
@@ -23,7 +23,7 @@ launch_webui = False
 #######################################
 
 import importlib
-from subprocess import call, getoutput, Popen, run
+from subprocess import run
 import sys
 
 REQUIRED_PACKAGES = [
@@ -56,19 +56,12 @@ for package in REQUIRED_PACKAGES:
 #######################################
 
 import os
-import subprocess
 import shutil
-from IPython.display import clear_output
-import time
-import ipywidgets as widgets
 import requests
-import fileinput
-from torch.hub import download_url_to_file
 from urllib.parse import urlparse
 import re
 import zipfile
 from tqdm import tqdm
-import gdown
 
 #######################################
 # VARIABLES
@@ -217,38 +210,38 @@ def replace_text_in_file(file_path, old_text, new_text):
         file.write(content)
 
 # update git repo function
-def update_git_repo(repo_path, repo_url=None, force_reset=False, update_submodules=False):
+def update_git_repo(repo_path, repo_url=None, force_reset=False, update_submodules=False, branch=None):
     # clone repository if repo_url is provided and repo doesn't exist
     if repo_url and not os.path.exists(repo_path):
         parent_dir = os.path.dirname(repo_path)
-        run(['git', 'clone', repo_url, repo_path], check=True)
+        if update_submodules:
+            run(['git', 'clone', '--recurse-submodules', repo_url, repo_path], check=True)
+        else:
+            run(['git', 'clone', repo_url, repo_path], check=True)
         print(f"Git repository cloned from {repo_url} to {repo_path} successfully!")
     elif os.path.exists(repo_path):
         # change working directory
         os.chdir(repo_path)
 
-        # pull latest version if repo exists
-        result = os.system("git pull")
-        if result == 0:
-            print(f"Git repository in {repo_path} pulled successfully!")
-        else:
-            print(f"An error occurred while pulling Git repository in {repo_path}.")
-        
+        # checkout specific branch if provided
+        if branch:
+            run(["git", "checkout", branch], check=True)
+            print(f"Checked out branch {branch} in {repo_path} successfully!")
+
         # reset git repository if needed
         if force_reset:
-            result = os.system("git reset --hard")
-            if result == 0:
-                print(f"Git repository in {repo_path} reset successfully!")
-            else:
-                print(f"An error occurred while resetting Git repository in {repo_path}.")
-    
+            run(["git", "reset", "--hard"], check=True)
+            print(f"Git repository in {repo_path} reset successfully!")
+        
         # Check for submodules and update if present
         if update_submodules and os.path.isfile('.gitmodules'):
-            result = os.system("git submodule update --init --recursive")
-            if result == 0:
-                print(f"Submodules in {repo_path} updated successfully!")
-            else:
-                print(f"An error occurred while updating submodules in {repo_path}.")
+            run(["git", "pull"], check=True)
+            run(["git", "submodule", "update", "--init", "--recursive"], check=True)
+            print(f"Submodules in {repo_path} updated successfully!")
+        else:
+            # pull latest version if repo exists
+            run(["git", "pull"], check=True)
+            print(f"Git repository in {repo_path} pulled successfully!")
 
 # download function from google drive
 def gdown_func(id, output):
@@ -329,7 +322,7 @@ if edit_relauncher:
 # force get latest version of stable-diffusion-webui
 if force_update_webui:
     print("========== Force Updating webui Repo to the Latest...========== \n")
-    update_git_repo(webui_path, force_reset=True, update_submodules=False)
+    update_git_repo(webui_path, branch='master', force_reset=True, update_submodules=False)
 
 #######################################
 # EMBEDDING MODELS
@@ -478,14 +471,14 @@ if update_venv:
         package_name, package_version = lib.split('=')
         
         # 检查当前已安装版本
-        result = subprocess.run(["apt-cache", "policy", package_name], capture_output=True, text=True)
+        result = run(["apt-cache", "policy", package_name], capture_output=True, text=True)
         installed_line = [line for line in result.stdout.split('\n') if 'Installed:' in line][0]
         installed_version = installed_line.split(':')[1].strip()
         
         # 如果未安装或版本不匹配
         if installed_version == '(none)' or installed_version != package_version:
             print(f"Installing {lib}...")
-            subprocess.run(["apt", "install", "-y", lib, "--allow-change-held-packages"], check=True)
+            run(["apt", "install", "-y", lib, "--allow-change-held-packages"], check=True)
         else:
             print(f"{lib} is already installed.")
 
