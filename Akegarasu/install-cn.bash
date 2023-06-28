@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # 环境变量
 export HF_HOME="huggingface"
@@ -22,24 +22,24 @@ source venv/bin/activate
 check "激活虚拟环境失败。"
 
 cd sd-scripts
-echo "安装程序所需依赖 (已进行国内加速，若在国外或无法使用加速源请换用 install.ps1 脚本)"
+echo "安装程序所需依赖..."
 read -p "是否需要安装 Torch+xformers? [y/n] (默认为 y)" install_torch
 if [ "$install_torch" == "y" ] || [ "$install_torch" == "Y" ] || [ -z "$install_torch" ]; then
-    pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 -f https://mirror.sjtu.edu.cn/pytorch-wheels/torch_stable.html -i https://mirror.baidu.com/pypi/simple
+    pip install torch==2.0.0+cu118 torchvision==0.15.1+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
     check "torch 安装失败，请删除 venv 文件夹后重新运行。"
-    pip install -U -I --no-deps xformers==0.0.19 -i https://mirror.baidu.com/pypi/simple
+    pip install -U -I --no-deps xformers==0.0.19
     check "xformers 安装失败。"
 fi
 
-pip install --upgrade -r requirements.txt -i https://mirror.baidu.com/pypi/simple
+pip install --upgrade -r requirements.txt
 check "其他依赖安装失败。"
-pip install --upgrade lion-pytorch dadaptation -i https://mirror.baidu.com/pypi/simple
+pip install --upgrade lion-pytorch dadaptation
 check "Lion、dadaptation 优化器安装失败。"
-pip install --upgrade lycoris-lora -i https://mirror.baidu.com/pypi/simple
+pip install --upgrade lycoris-lora
 check "lycoris 安装失败。"
-pip install --upgrade fastapi uvicorn -i https://mirror.baidu.com/pypi/simple
+pip install --upgrade fastapi uvicorn
 check "UI 所需依赖安装失败。"
-pip install --upgrade wandb -i https://mirror.baidu.com/pypi/simple
+pip install --upgrade wandb
 check "wandb 安装失败。"
 
 echo "安装 bitsandbytes..."
