@@ -86,6 +86,7 @@ extension_list = [
                     "https://github.com/yankooliveira/sd-webui-photopea-embed",
                     "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards",
                     "https://github.com/camenduru/stable-diffusion-webui-images-browser",
+                    "https://github.com/Bing-su/adetailer",
                     # "https://github.com/civitai/sd_civitai_extension",
                     # "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
                 ]
@@ -93,6 +94,9 @@ extension_list = [
 #### SET CHECKPOINT MODELS
 checkpoint_models = [   
                         "https://civitai.com/api/download/models/77276", # perfect world v4
+                        # "https://civitai.com/api/download/models/94640", # majicMIX realistic
+                        # "https://civitai.com/api/download/models/57618", # Counterfeit-V3.0
+                        "https://civitai.com/api/download/models/102996", # ToonYou
                         # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
                         # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
                         # "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
@@ -102,9 +106,12 @@ checkpoint_models = [
 
 ### SET LORA MODELS
 lora_models = [
-                "https://civitai.com/api/download/models/96573", # 3DMM
-                #"https://civitai.com/api/download/models/87153", # more_details
-
+                # "https://civitai.com/api/download/models/96573", # 3DMM
+                "https://civitai.com/api/download/models/87153", # more_details
+                "https://civitai.com/api/download/models/63006", # LowRA
+                "https://civitai.com/api/download/models/16576", # epi_noiseoffset
+                # "https://civitai.com/api/download/models/90115", # FilmGirl 胶片风 Film Grain LoRA & LoHA
+                # "https://civitai.com/api/download/models/102533" # Instant photo 拍立得/Polaroid LoRA & LoHA
             ]
 
 #### SET VAE
@@ -120,12 +127,12 @@ controlnet_models = [
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
-                        #"https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
@@ -456,8 +463,9 @@ if update_venv:
     # install xformers
     run_cmd(f"{pip_path} install xformers==0.0.20")
 
-    # pip install sqlalchemy
+    # pip install extra modules
     run_cmd(f"{pip_path} install sqlalchemy")
+    run_cmd(f"{pip_path} install ultralytics")
 
     # reinstall torch, torchvision and torchaudio
     run_cmd(f"yes | {pip_path} uninstall torch torchvision torchaudio")
