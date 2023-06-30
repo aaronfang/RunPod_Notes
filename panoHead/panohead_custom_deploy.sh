@@ -6,7 +6,11 @@ PANOHEAD_DIR="$WORKSPACE/PanoHead"
 DDFA_DIR="$WORKSPACE/3DDFA_V2"
 
 # clone repos and install dependencies
+if [ -d "$PANOHEAD_DIR" ]; then
+    rm -rf "$PANOHEAD_DIR"
+fi
 git clone -b dev1 https://github.com/camenduru/PanoHead $PANOHEAD_DIR
+apt-get update
 apt -y install -qq aria2
 
 # Define download function
@@ -19,9 +23,12 @@ download_file "https://huggingface.co/camenduru/PanoHead/resolve/main/ablation-t
 download_file "https://huggingface.co/camenduru/PanoHead/resolve/main/baseline-easy-khair-025000.pkl" "$PANOHEAD_DIR/models" "baseline-easy-khair-025000.pkl"
 download_file "https://huggingface.co/camenduru/PanoHead/resolve/main/easy-khair-180-gpc0.8-trans10-025000.pkl" "$PANOHEAD_DIR/models" "easy-khair-180-gpc0.8-trans10-025000.pkl"
 
-pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx
+pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx cython opencv-python click dlib tqdm imageio matplotlib scipy
 
 # Clone and build 3DDFA_V2
+if [ -d "$DDFA_DIR" ]; then
+    rm -rf "$DDFA_DIR"
+fi
 git clone -b dev https://github.com/camenduru/3DDFA_V2 $DDFA_DIR
 cd $DDFA_DIR
 sh ./build.sh
@@ -37,9 +44,55 @@ download_file "https://huggingface.co/camenduru/shape_predictor_68_face_landmark
 # Prepare directories
 mkdir -p "$WORKSPACE/in" "$WORKSPACE/stage" "$WORKSPACE/output"
 
+# 检查是否已经安装了ImageMagick
+if ! command -v convert &> /dev/null; then
+    echo "ImageMagick未安装,正在尝试安装..."
+    apt-get install -y imagemagick
+fi
+
+# 找到当前目录下的第一张图片
+img_file=$(find "$WORKSPACE" -maxdepth 1 \( -name "*.png" -o -name "*.jpeg" -o -name "*.webp" -o -name "*.jpg" \) -print -quit)
+
+if [ -z "$img_file" ]; then
+    echo "在 $WORKSPACE 目录中没有找到任何图片"
+    exit 1
+fi
+
+# 检查图片是否已经是.jpg格式
+if [[ $img_file != *.jpg ]]; then
+    # 使用ImageMagick的convert命令将图片转换为.jpg格式
+    convert "$img_file" test.jpg
+else
+    # 如果图片已经是.jpg格式，那么复制它并重命名为test.jpg
+    cp "$img_file" test.jpg
+fi
+
+mv test.jpg "$WORKSPACE/in/"
+
 # prepare input images
-rm -rf "$WORKSPACE/stage/*" "$DDFA_DIR/crop_samples/img/*" "$DDFA_DIR/test/original/*" "$WORKSPACE/output/*"
-cp "$WORKSPACE/in/*" "$DDFA_DIR/test/original"
+# rm -rf "$WORKSPACE/stage/*" "$DDFA_DIR/crop_samples/img/*" "$DDFA_DIR/test/original/*" "$WORKSPACE/output/*"
+# cp "$WORKSPACE/in/*" "$DDFA_DIR/test/original"
+# Check if the files exist in the directories before deleting
+if [ "$(ls -A $WORKSPACE/stage)" ]; then
+   rm -rf "$WORKSPACE"/stage/*
+fi
+
+if [ "$(ls -A $DDFA_DIR/crop_samples/img)" ]; then
+   rm -rf "$DDFA_DIR"/crop_samples/img/*
+fi
+
+if [ "$(ls -A $DDFA_DIR/test/original)" ]; then
+   rm -rf "$DDFA_DIR"/test/original/*
+fi
+
+if [ "$(ls -A $WORKSPACE/output)" ]; then
+   rm -rf "$WORKSPACE"/output/*
+fi
+
+# Check if the files exist in the input directory before copying
+if [ "$(ls -A $WORKSPACE/in)" ]; then
+   cp "$WORKSPACE"/in/* "$DDFA_DIR"/test/original/
+fi
 
 cd $DDFA_DIR
 python dlib_kps.py
