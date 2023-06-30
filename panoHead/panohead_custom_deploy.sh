@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Install dependencies
+pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx cython opencv-python click dlib tqdm imageio matplotlib scipy
+
 # Define directories
 WORKSPACE="/workspace"
 PANOHEAD_DIR="$WORKSPACE/PanoHead"
@@ -22,8 +25,6 @@ download_file() {
 download_file "https://huggingface.co/camenduru/PanoHead/resolve/main/ablation-trigridD-1-025000.pkl" "$PANOHEAD_DIR/models" "ablation-trigridD-1-025000.pkl"
 download_file "https://huggingface.co/camenduru/PanoHead/resolve/main/baseline-easy-khair-025000.pkl" "$PANOHEAD_DIR/models" "baseline-easy-khair-025000.pkl"
 download_file "https://huggingface.co/camenduru/PanoHead/resolve/main/easy-khair-180-gpc0.8-trans10-025000.pkl" "$PANOHEAD_DIR/models" "easy-khair-180-gpc0.8-trans10-025000.pkl"
-
-pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx cython opencv-python click dlib tqdm imageio matplotlib scipy
 
 # Clone and build 3DDFA_V2
 if [ -d "$DDFA_DIR" ]; then
