@@ -146,9 +146,10 @@ sed -i 's/max_batch = .*/max_batch = 3000000/g' "$PANOHEAD_DIR/projector_withseg
 echo "========== projector_withseg.py修改完成 =========="
 cd $PANOHEAD_DIR
 python projector_withseg.py --num-steps=300 --num-steps-pti=300 --shapes=True --outdir="$WORKSPACE/output" --target_img="$WORKSPACE/stage" --network="$PANOHEAD_DIR/models/easy-khair-180-gpc0.8-trans10-025000.pkl" --idx 0
-
+echo "========== ply model生成完成 =========="
 # Run gen_videos_proj_withseg.py for pre and post videos
 for video_type in pre post
 do
     python gen_videos_proj_withseg.py --output="$WORKSPACE/output/easy-khair-180-gpc0.8-trans10-025000.pkl/0/PTI_render/$video_type.mp4" --latent="$WORKSPACE/output/easy-khair-180-gpc0.8-trans10-025000.pkl/0/projected_w.npz" --trunc 0.7 --network "$WORKSPACE/output/easy-khair-180-gpc0.8-trans10-025000.pkl/0/fintuned_generator.pkl" --cfg Head
+    echo "========== $video_type.mp4生成完成 =========="
 done
