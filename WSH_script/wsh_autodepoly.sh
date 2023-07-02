@@ -1,42 +1,48 @@
 #!/bin/bash
 
-# 初始化常量
+echo "初始化常量"
 ROOT_DIR="/workspace"    # 项目根目录
 SD_SCRIPTS_DIR="${ROOT_DIR}/sd-scripts"    # kohya库克隆路径
 WEBUI_DIR="${ROOT_DIR}/kohya-config-webui"   # webui库克隆路径
 SD_MODEL_DIR="${ROOT_DIR}/sd_model"    # SD模型下载地址
 VAE_MODEL_DIR="${ROOT_DIR}/vae_model"    # VAE模型下载地址
 
-# 训练用环境变量
+echo "训练用环境变量"
 export TF_CPP_MIN_LOG_LEVEL="3"
 export BITSANDBYTES_NOWELCOME="1"
 export SAFETENSORS_FAST_GPU="1"
 
-# 克隆github的库
+echo "创建虚拟环境"
+apt update
+apt install python3.10-venv
+python -m venv venv
+source venv/bin/activate
+
+echo "克隆github的库"
 cd $ROOT_DIR || exit
 git clone https://github.com/kohya-ss/sd-scripts.git $SD_SCRIPTS_DIR
 git clone https://github.com/WSH032/kohya-config-webui.git $WEBUI_DIR
 
-# 安装torch
+echo "安装torch、xformers、triton"
 pip install torch torchvision xformers triton
 
-# 安装kohya依赖
+echo "安装kohya依赖"
 cd $SD_SCRIPTS_DIR || exit
 pip install -r requirements.txt
 cd $ROOT_DIR || exit
 
-# 安装lion优化器、Dadaption优化器、lycoris
+echo "安装lion优化器、Dadaption优化器、lycoris-lora"
 pip install --upgrade lion-pytorch dadaptation lycoris-lora
 
-# 安装wandb
+echo "安装wandb"
 pip install wandb
 
-# 安装webui依赖
+echo "安装webui依赖"
 cd $WEBUI_DIR || exit
 pip install -r requirements.txt
 cd $ROOT_DIR || exit
 
-# 安装功能性依赖
+echo "安装aria2"
 apt-get update
 apt install aria2
 
@@ -68,14 +74,17 @@ declare -A vae_model_urls=(
 sd_models=("stable_diffusion_1_5-pruned.safetensors" ) # ... 其他模型
 vae_models=("anime.vae.pt" ) # ... 其他模型
 
-# 下载SD模型
+echo "下载SD模型"
 for model in "${sd_models[@]}"; do
   url=${sd_model_urls[$model]}
   aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -d ${SD_MODEL_DIR} -o "${model}" "${url}"
 done
 
-# 下载VAE模型
+echo "下载VAE模型"
 for model in "${vae_models[@]}"; do
   url=${vae_model_urls[$model]}
   aria2c --console-log-level=error -c -x 16 -s 16 -k 1M -d ${VAE_MODEL_DIR} -o "${model}" "${url}"
 done
+
+echo "运行launch_webui.sh,打开训练参数配置页面"
+python launch_webui.py
