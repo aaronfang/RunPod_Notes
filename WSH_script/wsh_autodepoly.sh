@@ -6,8 +6,8 @@ ROOT_DIR="/workspace"
 SD_SCRIPTS_DIR="${ROOT_DIR}/sd-scripts"    # kohya库克隆路径
 WEBUI_DIR="${ROOT_DIR}/kohya-config-webui"   # webui库克隆路径
 
-SD_MODEL_DIR="${ROOT_DIR}/Lora/sd_model"    # SD模型下载地址
-VAE_MODEL_DIR="${ROOT_DIR}/Lora/vae_model"    # VAE模型下载地址
+SD_MODEL_DIR="${ROOT_DIR}/sd_model"    # SD模型下载地址
+VAE_MODEL_DIR="${ROOT_DIR}/vae_model"    # VAE模型下载地址
 
 # 在此根据你的实际路径进行配置
 DEFAULT_INPUT_DIR="<Your Input Path>"    # 训练集地址
@@ -47,6 +47,7 @@ pip install -r requirements.txt
 cd $ROOT_DIR
 
 # 安装功能性依赖
+apt-get update
 apt install aria2
 pip install portpicker
 
