@@ -6,13 +6,13 @@ import toml
 ROOT_DIR = "/workspace"
 SD_SCRIPTS_DIR = os.path.join(ROOT_DIR, "sd-scripts")    # kohya库克隆路径
 WEBUI_DIR = os.path.join(ROOT_DIR, "kohya-config-webui")   # webui库克隆路径
-SD_MODEL_DIR = os.path.join(ROOT_DIR, "Lora/sd_model")    # SD模型下载地址
-VAE_MODEL_DIR = os.path.join(ROOT_DIR, "Lora/vae_model")    # VAE模型下载地址
+SD_MODEL_DIR = os.path.join(ROOT_DIR, "sd_model")    # SD模型下载地址
+VAE_MODEL_DIR = os.path.join(ROOT_DIR, "vae_model")    # VAE模型下载地址
 # 在此根据你的实际路径进行配置
-DEFAULT_INPUT_DIR = "<Your Input Path>"    # 训练集地址
-DEFAULT_REG_DIR = "<Your Reg Path>"    # 正则化地址
-DEFAULT_OUPUT_DIR = "<Your Output Path>"    # 模型输出地址
-DEFAULT_WEBUI_SAVE_DIR = "<Your Webui Save Path>"    # 保存webui参数文件地址
+DEFAULT_INPUT_DIR = os.path.join(ROOT_DIR, "input")    # 训练集地址
+DEFAULT_REG_DIR = os.path.join(ROOT_DIR, "regularization")     # 正则化地址
+DEFAULT_OUPUT_DIR = os.path.join(ROOT_DIR, "output")     # 模型输出地址
+DEFAULT_WEBUI_SAVE_DIR = os.path.join(ROOT_DIR, "config")    # 保存webui参数文件地址
 ACCELERATE_CONFIG_PATH = os.path.join(ROOT_DIR, "accelerate_config.yaml")   # accelerate库config文件写入地址
 
 sys.path.append(os.path.join(WEBUI_DIR, "module"))
