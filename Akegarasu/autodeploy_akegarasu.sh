@@ -3,7 +3,12 @@
 ROOT_DIR="/workspace"    # 项目根目录
 LORA_SCRIPTS_DIR="${ROOT_DIR}/lora-scripts"    # Akegarasu库克隆路径
 SD_SCRIPTS_DIR="${LORA_SCRIPTS_DIR}/sd-scripts"    # sd_scripts路径
-SD_MODEL_DIR="${LORA_SCRIPTS_DIR}/sd-models"    # SD模型下载地址
+DEFAULT_SD_MODEL_DIR="${LORA_SCRIPTS_DIR}/sd-models"    # SD模型默认下载地址
+ALT_SD_MODEL_DIR="${ROOT_DIR}/stable-diffusion-webui/models/stable-difusion" # 备选SD模型目录
+
+
+
+
 
 # 克隆Akegarasu库
 if [ ! -d "lora-scripts" ]; then
@@ -36,13 +41,40 @@ cd "$LORA_SCRIPTS_DIR" || exit
 
 echo "脚本依赖安装完成"
 
-
-echo "正在下载模型文件..."
-if [ ! -f "${SD_MODEL_DIR}/v1-5-pruned.ckpt" ]; then
-  wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned.ckpt -P ${SD_MODEL_DIR}
+echo "下载模型文件..."
+# 检查目录中是否包含名为v1-5-pruned或者v1-5-pruned-emaonly的文件，后缀是.ckpt或.safetensors
+contains_files() {
+    for filename in "$1"/*; do
+        base=$(basename -- "$filename")
+        base_without_ext="${base%.*}"
+        if [[ $base_without_ext == "v1-5-pruned" || $base_without_ext == "v1-5-pruned-emaonly" ]]; then
+            if [[ $base == *.ckpt || $base == *.safetensors ]]; then
+                return 0
+            fi
+        fi
+    done
+    return 1
+}
+# 检查默认SD模型目录是否包含需要的文件
+if contains_files $DEFAULT_SD_MODEL_DIR; then
+    SD_MODEL_DIR=$DEFAULT_SD_MODEL_DIR
+    echo "v1.5模型已存在于{$SD_MODEL_DIR}"
+# 否则检查备选SD模型目录是否包含需要的文件
+elif contains_files $ALT_SD_MODEL_DIR; then
+    SD_MODEL_DIR=$ALT_SD_MODEL_DIR
+    echo "v1.5模型已存在于{$SD_MODEL_DIR}"
+else
+    # 如果两个目录都不包含需要的文件，则下载文件到默认目录
+    echo "v1.5模型不存在，正在下载到{$DEFAULT_SD_MODEL_DIR}..."
+    SD_MODEL_DIR=$DEFAULT_SD_MODEL_DIR
+    if [ ! -f "${SD_MODEL_DIR}/v1-5-pruned.ckpt" ]; then
+      wget https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors -P "${SD_MODEL_DIR}"
+    fi
 fi
 
 # Run run_gui.sh script
+# find /path/to/directory -name "*.sh" -exec chmod +x {} \;
+chmod +x run_gui.sh
 ./run_gui.sh --host "0.0.0.0" --tensorboard-host "0.0.0.0"
 
 # Deactivate the virtual environment
