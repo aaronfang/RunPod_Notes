@@ -1,18 +1,39 @@
 #!/bin/bash
 
-#############################################################
-# Step 1 (Mandatory) - Install Txt to Video Finetuning
-#############################################################
+set -e  # if a command fails it stops the execution
+set -u  # script fails if trying to access to a declared variable
 
-#AI Lost Media's Text to Video Colab Workspace https://youtube.com/@ailostmedia
-#huge thanks to Camenduru https://twitter.com/camenduru and Cerspense https://twitter.com/cerspense for putting these models together.
-#tutorial: https://www.ailostmedia.com/post/the-ai-lost-media-text-to-video-colab-workspace
-cd /content
+WORK_DIR="/workspace"    # 项目根目录
+REPO_TEXT_TO_VIDEO="https://github.com/camenduru/Text-To-Video-Finetuning"
+REPO_POTAT1ALM="https://github.com/ailostmedia/Potat1ALM"
+
+cd "$WORK_DIR" || exit
+
+# 检查当前环境中是否存在虚拟环境，如果没有则创建
+if [ ! -d "venv" ]; then
+  echo "正在创建虚拟环境..."
+  python -m venv venv
+fi
+
+# 如果虚拟环境存在，则激活虚拟环境
+source venv/bin/activate
+
+# 安装Python依赖包
 pip install -q torch==1.13.1+cu116 torchvision==0.14.1+cu116 torchaudio==0.13.1 torchtext==0.14.1 torchdata==0.5.1 --extra-index-url https://download.pytorch.org/whl/cu116 -U
 pip install git+https://github.com/huggingface/diffusers transformers accelerate imageio[ffmpeg] -U einops omegaconf decord xformers==0.0.16 safetensors
-git clone -b dev https://github.com/camenduru/Text-To-Video-Finetuning
-git clone https://github.com/ailostmedia/Potat1ALM
-mv /content/Potat1ALM/inference.py /content/Text-To-Video-Finetuning/
+pip install triton einops
+
+# Clone repositories
+git clone -b dev "$REPO_TEXT_TO_VIDEO"
+git clone "$REPO_POTAT1ALM"
+
+cd $REPO_TEXT_TO_VIDEO || exit
+pip install -r requirements.txt
+
+cd "$WORK_DIR" || exit
+# Move the inference.py file
+mv "$WORK_DIR"/Potat1ALM/inference.py "$WORK_DIR"/Text-To-Video-Finetuning/
+
 
 #############################################################
 # Step 2 (Mandatory) - Install Potat1 or ZeroScope (or both)
@@ -20,27 +41,27 @@ mv /content/Potat1ALM/inference.py /content/Text-To-Video-Finetuning/
 
 # Install Potat1
 #default 1024 x 576 - try 800 x 448 for colab
-cd /content/
+cd "$WORK_DIR"/
 git clone https://huggingface.co/camenduru/potat1
 
 #@title STEP2: Install ZeroScope 576
 #default 576 x 320
-cd /content/
+cd "$WORK_DIR"/
 git clone https://huggingface.co/cerspense/zeroscope_v2_576w
 
 #@title STEP2: Install ZeroScope XL
 #default 1024 x 576 - try 800 x 448 for colab
-cd /content/
+cd "$WORK_DIR"/
 git clone https://huggingface.co/cerspense/zeroscope_v2_XL
 
 #@title STEP2: Install ZeroScope 448
 #default 448 x 256
-cd /content/
+cd "$WORK_DIR"/
 git clone https://huggingface.co/cerspense/zeroscope_v2_dark_30x448x256
 
 
 ###========== Step 3 - Text to Video ==========
-cd /content/Text-To-Video-Finetuning
+cd "$WORK_DIR"/Text-To-Video-Finetuning
 import torch
 import random
 import numpy as np
@@ -70,26 +91,26 @@ else:
 thisHeight = int(round(height/8.0)*8.0)
 thisWidth = int(round(width/8.0)*8.0)
 
-thisModel="/content/"+model
-!python inference.py -m {thisModel} -p {prompt} -n {negative} -W {thisWidth} -H {thisHeight} -o /content/outputs -d cuda -x -s {num_steps} -g {guidance_scale} -f {fps} -T {num_frames} -seed {thisSeed}
+thisModel=""$WORK_DIR"/"+model
+!python inference.py -m {thisModel} -p {prompt} -n {negative} -W {thisWidth} -H {thisHeight} -o "$WORK_DIR"/outputs -d cuda -x -s {num_steps} -g {guidance_scale} -f {fps} -T {num_frames} -seed {thisSeed}
 #-seed {thisSeed}
 
 ###========== Optional: Image to Vid ==========
 #@title Img2Vid Step 1: Install 3D Photo inpainting
 apt -y install -qq aria2 xvfb
 pip install vispy transforms3d networkx
-cd /content/
+cd "$WORK_DIR"/
 git clone -b dev https://github.com/camenduru/3d-photo-inpainting
-cd /content/3d-photo-inpainting
+cd "$WORK_DIR"/3d-photo-inpainting
 git clone https://github.com/camenduru/BoostingMonocularDepth
 
-aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/color-model.pth -d /content/3d-photo-inpainting/checkpoints -o color-model.pth
-aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/depth-model.pth -d /content/3d-photo-inpainting/checkpoints -o depth-model.pth
-aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/edge-model.pth -d /content/3d-photo-inpainting/checkpoints -o edge-model.pth
-aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/model.pt -d /content/3d-photo-inpainting/checkpoints -o model.pt
+aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/color-model.pth -d "$WORK_DIR"/3d-photo-inpainting/checkpoints -o color-model.pth
+aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/depth-model.pth -d "$WORK_DIR"/3d-photo-inpainting/checkpoints -o depth-model.pth
+aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/edge-model.pth -d "$WORK_DIR"/3d-photo-inpainting/checkpoints -o edge-model.pth
+aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/model.pt -d "$WORK_DIR"/3d-photo-inpainting/checkpoints -o model.pt
 
-aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/latest_net_G.pth -d /content/3d-photo-inpainting/BoostingMonocularDepth/pix2pix/checkpoints/mergemodel -o latest_net_G.pth
-aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/model-f46da743.pt -d /content/3d-photo-inpainting/BoostingMonocularDepth/midas -o model.pt
+aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/latest_net_G.pth -d "$WORK_DIR"/3d-photo-inpainting/BoostingMonocularDepth/pix2pix/checkpoints/mergemodel -o latest_net_G.pth
+aria2c --console-log-level=error -c -x 16 -s 16 -k 1M https://huggingface.co/camenduru/3d-photo-inpainting/resolve/main/model-f46da743.pt -d "$WORK_DIR"/3d-photo-inpainting/BoostingMonocularDepth/midas -o model.pt
 
 #@title Img2Vid Step 2: Select Photo - Subject should be in center (use Jpg)
 import os
@@ -104,20 +125,20 @@ def reformat_photo(photo):
 upload_method = "Upload" #@param ["Upload", "Custom Path"]
 
 # remove previous input video
-if os.path.isfile('/content/3d-photo-inpainting/image/test.jpg'):
-    os.remove('/content/3d-photo-inpainting/image/test.jpg')
+if os.path.isfile('"$WORK_DIR"/3d-photo-inpainting/image/test.jpg'):
+    os.remove('"$WORK_DIR"/3d-photo-inpainting/image/test.jpg')
 
 if upload_method == "Upload":
     uploaded = files.upload()
     for filename in uploaded.keys():
-        os.rename(filename, '/content/3d-photo-inpainting/image/test.jpg')
-    PATH_TO_YOUR_PHOTO = '/content/3d-photo-inpainting/image/test.jpg'
+        os.rename(filename, '"$WORK_DIR"/3d-photo-inpainting/image/test.jpg')
+    PATH_TO_YOUR_PHOTO = '"$WORK_DIR"/3d-photo-inpainting/image/test.jpg'
 
 elif upload_method == 'Custom Path':
     if not 'drive' in globals():
-        drive.mount('/content/drive')
+        drive.mount('"$WORK_DIR"/drive')
     #@markdown ``Add the full path to your video on your Gdrive `` 👇
-    PATH_TO_YOUR_PHOTO = '/content/3d-photo-inpainting/image/test.jpg' #@param {type:"string"}
+    PATH_TO_YOUR_PHOTO = '"$WORK_DIR"/3d-photo-inpainting/image/test.jpg' #@param {type:"string"}
     if not os.path.isfile(PATH_TO_YOUR_PHOTO):
         print("ERROR: File not found!")
         raise SystemExit(0)
@@ -127,7 +148,7 @@ if upload_method == "Upload":
 
 else:
     if os.path.isfile(PATH_TO_YOUR_PHOTO):
-        shutil.copyfile(PATH_TO_YOUR_PHOTO, "/content/3d-photo-inpainting/image/test.jpg")
+        shutil.copyfile(PATH_TO_YOUR_PHOTO, ""$WORK_DIR"/3d-photo-inpainting/image/test.jpg")
         print("Input Photo")
         showVideo(PATH_TO_YOUR_PHOTO)
 
@@ -150,7 +171,7 @@ fps = 24 #@param {type:"raw"}
 num_frames = 72 #@param {type:"raw"}
 
 import yaml
-cd /content/3d-photo-inpainting
+cd "$WORK_DIR"/3d-photo-inpainting
 
 with open('argument.yml', 'r') as file:
   arguments = file.readlines()
@@ -171,7 +192,7 @@ xvfb-run -s "-screen 0 1280x720x24" python main.py --config argument.yml
 
 
 #@title Img2Vid STEP 4: V2V with ZeroScope (Will Need Interpolating)
-cd /content/Text-To-Video-Finetuning
+cd "$WORK_DIR"/Text-To-Video-Finetuning
 import torch
 import random
 import numpy as np
@@ -205,15 +226,15 @@ else:
 
 thisHeight = int(round(height/8.0)*8.0)
 thisWidth = int(round(width/8.0)*8.0)
-thisModel="/content/"+model
+thisModel=""$WORK_DIR"/"+model
 thisVideoPath = str(video_path)
-python inference.py -m {thisModel} -p {prompt} -n {negative} -W {thisWidth} -H {thisHeight} -o /content/outputs -d cuda -x -s {num_steps} -g {guidance_scale} -f {fps} -T {num_frames} -seed {thisSeed} -i {thisVideoPath} -iw {video_weight}
+python inference.py -m {thisModel} -p {prompt} -n {negative} -W {thisWidth} -H {thisHeight} -o "$WORK_DIR"/outputs -d cuda -x -s {num_steps} -g {guidance_scale} -f {fps} -T {num_frames} -seed {thisSeed} -i {thisVideoPath} -iw {video_weight}
 #-seed {thisSeed}
 
 
 ###========== Optional - V2V (Upload your own or use ZeroScope below) ==========
 #@title V2V Step 1: Run ZeroScope (Optional)
-%cd /content/Text-To-Video-Finetuning
+%cd "$WORK_DIR"/Text-To-Video-Finetuning
 import torch
 import random
 import numpy as np
@@ -256,5 +277,5 @@ if seeding == "Random":
 else:
   thisSeed = inputSeed
 
-!python inference.py -m "/content/zeroscope_v2_dark_30x448x256" -p {prompt} -n {negative} -W 448 -H 256 -o /content/outputs -d cuda -x -s {num_steps} -g {guidance_scale} -f {fps} -T {num_frames} -seed {thisSeed}
+!python inference.py -m "$WORK_DIR"/zeroscope_v2_dark_30x448x256 -p {prompt} -n {negative} -W 448 -H 256 -o "$WORK_DIR"/outputs -d cuda -x -s {num_steps} -g {guidance_scale} -f {fps} -T {num_frames} -seed {thisSeed}
 #-seed {thisSeed}
