@@ -97,18 +97,18 @@ checkpoint_models = [
                         # "https://civitai.com/api/download/models/94640", # majicMIX realistic
                         # "https://civitai.com/api/download/models/57618", # Counterfeit-V3.0
                         "https://civitai.com/api/download/models/102996", # ToonYou
-                        # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
-                        # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
-                        # "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
+                        "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
+                        "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
+                        "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
                         #"google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
                         # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
                     ]
 
 ### SET LORA MODELS
 lora_models = [
-                # "https://civitai.com/api/download/models/96573", # 3DMM
+                "https://civitai.com/api/download/models/96573", # 3DMM
                 "https://civitai.com/api/download/models/87153", # more_details
-                "https://civitai.com/api/download/models/63006", # LowRA
+                # "https://civitai.com/api/download/models/63006", # LowRA
                 "https://civitai.com/api/download/models/16576", # epi_noiseoffset
                 # "https://civitai.com/api/download/models/90115", # FilmGirl 胶片风 Film Grain LoRA & LoHA
                 # "https://civitai.com/api/download/models/102533" # Instant photo 拍立得/Polaroid LoRA & LoHA
@@ -125,17 +125,17 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_shuffle.pth",
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
-                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
+                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
                     ]
 
 #######################################

@@ -19,9 +19,9 @@ fi
 source venv/bin/activate
 
 # 安装Python依赖包
-pip install -q torch==1.13.1+cu116 torchvision==0.14.1+cu116 torchaudio==0.13.1 torchtext==0.14.1 torchdata==0.5.1 --extra-index-url https://download.pytorch.org/whl/cu116 -U
+pip install torch==1.13.1+cu116 torchvision==0.14.1+cu116 torchaudio==0.13.1 torchtext==0.14.1 torchdata==0.5.1 --extra-index-url https://download.pytorch.org/whl/cu116 -U
 pip install git+https://github.com/huggingface/diffusers transformers accelerate imageio[ffmpeg] -U einops omegaconf decord xformers==0.0.16 safetensors
-pip install triton einops
+pip install triton einops gradio
 
 # Clone repositories
 git clone -b dev "$REPO_TEXT_TO_VIDEO"

@@ -1,0 +1,13 @@
+{
+  "models": ["potat1", "zeroscope_v2_dark_30x448x256", "zeroscope_v2_576w", "zeroscope_v2_XL"],
+  "prompt": "extremely detailed, Futuristic Cityscape, blade runner, extremely cloudy, awardwinning, best quality, 8k",
+  "negative": "text, watermark, copyright, blurry, nsfw, noise, quick motion, bad quality, flicker, dirty, ugly, fast motion, quick cuts, fast editing, cuts",
+  "num_steps": 25,
+  "guidance_scale": 23,
+  "width": 800,
+  "height": 448,
+  "fps": 10,
+  "num_frames": 30,
+  "seeding": "Random",
+  "inputSeed": 7106521602475165645
+}
