@@ -466,6 +466,7 @@ if update_venv:
     # pip install extra modules
     run_cmd(f"{pip_path} install sqlalchemy")
     run_cmd(f"{pip_path} install ultralytics")
+    run_cmd(f"{pip_path} install python-dotenv")
 
     # reinstall torch, torchvision and torchaudio
     run_cmd(f"yes | {pip_path} uninstall torch torchvision torchaudio")
