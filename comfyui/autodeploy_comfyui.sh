@@ -19,7 +19,6 @@ fi
 # 如果虚拟环境存在，则激活虚拟环境
 source venv/bin/activate
 
-
 echo "安装依赖"
 pip install xformers!=0.0.18 -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu118 --extra-index-url https://download.pytorch.org/whl/cu117
 
@@ -42,13 +41,13 @@ else
 fi
 
 echo "从 pastebin 下载SDXL的节点图"
-if [ ! -f "$MODEL_DIR/Workflow_ComfyUI_SDXL_0.9.json" ]; then
+if [ ! -f "$COMFYUI_DIR/Workflow_ComfyUI_SDXL_0.9.json" ]; then
     echo "没有找到Workflow_ComfyUI_SDXL_0.9.json，开始下载..."
-    wget https://pastebin.com/dl/sjhP8Pcj -O $COMFYUI_DIR/Workflow_ComfyUI_SDXL_0.9.json
+    # wget https://pastebin.com/dl/sjhP8Pcj -O $COMFYUI_DIR/Workflow_ComfyUI_SDXL_0.9.json
+    wget https://pastebin.com/dl/brKr6QJc -O $COMFYUI_DIR/Workflow_ComfyUI_SDXL_0.9_v2.json
 else
     echo "Workflow_ComfyUI_SDXL_0.9.json 已经存在。"
 fi
-
 
 # --listen：字符串类型，指定服务器要监听的IP地址，默认为"127.0.0.1"。如果--listen参数提供了但没有值，将默认为"0.0.0.0"。
 # --port：整数类型，设置服务器要监听的端口，默认为8188。
