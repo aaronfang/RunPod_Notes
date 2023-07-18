@@ -87,6 +87,7 @@ extension_list = [
                     "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards",
                     "https://github.com/camenduru/stable-diffusion-webui-images-browser",
                     "https://github.com/Bing-su/adetailer",
+                    "https://github.com/continue-revolution/sd-webui-animatediff",
                     # "https://github.com/civitai/sd_civitai_extension",
                     # "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
                 ]
@@ -94,12 +95,12 @@ extension_list = [
 #### SET CHECKPOINT MODELS
 checkpoint_models = [   
                         "https://civitai.com/api/download/models/77276", # perfect world v4
-                        # "https://civitai.com/api/download/models/94640", # majicMIX realistic
+                        "https://civitai.com/api/download/models/94640", # majicMIX realistic
                         # "https://civitai.com/api/download/models/57618", # Counterfeit-V3.0
                         "https://civitai.com/api/download/models/102996", # ToonYou
-                        "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
-                        "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
-                        "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
+                        # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
+                        # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
+                        # "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
                         #"google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
                         # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
                         # "https://OwlMaster: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@huggingface.co/stabilityai/stable-diffusion-xl-base-0.9/resolve/main/sd_xl_base_0.9.safetensors",
@@ -112,7 +113,7 @@ lora_models = [
                 "https://civitai.com/api/download/models/87153", # more_details
                 # "https://civitai.com/api/download/models/63006", # LowRA
                 "https://civitai.com/api/download/models/16576", # epi_noiseoffset
-                # "https://civitai.com/api/download/models/90115", # FilmGirl 胶片风 Film Grain LoRA & LoHA
+                "https://civitai.com/api/download/models/90115", # FilmGirl 胶片风 Film Grain LoRA & LoHA
                 # "https://civitai.com/api/download/models/102533" # Instant photo 拍立得/Polaroid LoRA & LoHA
             ]
 
@@ -127,8 +128,8 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_ip2p.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11e_sd15_shuffle.pth",
                         "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1e_sd15_tile.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11f1p_sd15_depth.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_canny.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_inpaint.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
@@ -137,7 +138,7 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15s2_lineart_anime.pth"
                     ]
 
 #######################################
@@ -147,6 +148,9 @@ controlnet_models = [
 if init_packages:
     # install lsof
     os.system("apt-get install lsof")
+
+    # install dos2unix
+    os.system("apt-get install dos2unix")
 
     try:
         os.system("pip install gdown")
@@ -454,6 +458,13 @@ if download_styles:
     print("========== Downloading styles.csv file from Google Drive...========== \n")
     styles_down()
 
+# download mm_sd_v15.ckpt from google dirve to $extensions_path/sd-webui-animatediff/model/ 
+#if the path exist and file is not exist
+if os.path.exists(f'{extensions_path}/sd-webui-animatediff/') and not os.path.exists(f'{extensions_path}/sd-webui-animatediff/model/'): 
+    print("========== Downloading mm_sd_v15.ckpt from Google Drive...========== \n")
+    run_cmd(f"mkdir {extensions_path}/sd-webui-animatediff/model/")
+    gdown_func("1-efZaSAF2TItZIUV1RxLwjBJSaJsNjXI", f"{extensions_path}/sd-webui-animatediff/model/")
+
 #######################################
 # UPDATE XFORMERS, CUDA, CUDNN AND TORCH
 #######################################
@@ -493,13 +504,23 @@ if update_venv:
         else:
             print(f"{lib} is already installed.")
 
-# replace webui-user.sh
-shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
-print("========== webui-user.sh Replaced ==========")
+# if webui-user.sh exists, replace it
+if os.path.exists('/workspace/webui-user.sh'):
+    # convert webui-user.sh to unix format
+    run_cmd("dos2unix /workspace/webui-user.sh")
+    # replace webui-user.sh
+    shutil.copy('/workspace/webui-user.sh', '/workspace/stable-diffusion-webui/webui-user.sh')
+    print("========== webui-user.sh Replaced ==========")
+else:
+    print("========== webui-user.sh not found ==========")
 
+# if config.json exists, replace it
+if os.path.exists('/workspace/config.json'):
 # replace config.json
-shutil.copy('/workspace/config.json', '/workspace/stable-diffusion-webui/config.json')
-print("========== config.json Replaced ==========")
+    shutil.copy('/workspace/config.json', '/workspace/stable-diffusion-webui/config.json')
+    print("========== config.json Replaced ==========")
+else:
+    print("========== config.json not found ==========")
 
 print("========== All Done! ==========")
 
