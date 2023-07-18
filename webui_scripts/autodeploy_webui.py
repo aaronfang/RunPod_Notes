@@ -102,6 +102,8 @@ checkpoint_models = [
                         "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
                         #"google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
                         # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
+                        # "https://OwlMaster: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@huggingface.co/stabilityai/stable-diffusion-xl-base-0.9/resolve/main/sd_xl_base_0.9.safetensors",
+                        # "https://OwlMaster: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@huggingface.co/stabilityai/stable-diffusion-xl-refiner-0.9/resolve/main/sd_xl_refiner_0.9.safetensors",
                     ]
 
 ### SET LORA MODELS
