@@ -1,13 +1,21 @@
 #!/bin/bash
 
-# Install dependencies
-pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx cython opencv-python click dlib tqdm imageio matplotlib scipy imageio-ffmpeg scikit-image
-echo "========== 依赖安装完成 =========="
-
 # Define directories
 WORKSPACE="/workspace"
 PANOHEAD_DIR="$WORKSPACE/PanoHead"
 DDFA_DIR="$WORKSPACE/3DDFA_V2"
+
+# 找到当前目录下的第一张图片
+img_file=$(find "$WORKSPACE" -maxdepth 1 \( -name "*.png" -o -name "*.jpeg" -o -name "*.webp" -o -name "*.jpg" \) -print -quit)
+
+if [ -z "$img_file" ]; then
+    echo "在 $WORKSPACE 目录中没有找到任何图片"
+    exit 1
+fi
+
+# Install dependencies
+pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx cython opencv-python click dlib tqdm imageio matplotlib scipy imageio-ffmpeg scikit-image
+echo "========== 依赖安装完成 =========="
 
 # clone repos and install dependencies
 if [ -d "$PANOHEAD_DIR" ]; then
@@ -46,7 +54,7 @@ if [ -d "$DDFA_DIR" ]; then
     git pull
 fi
 git clone -b dev https://github.com/camenduru/3DDFA_V2 $DDFA_DIR
-cd $DDFA_DIR
+cd $DDFA_DIR || exit
 sh ./build.sh
 
 # Copy files to 3DDFA_V2 directory
@@ -69,13 +77,6 @@ if ! command -v convert &> /dev/null; then
     apt-get install -y imagemagick
 fi
 
-# 找到当前目录下的第一张图片
-img_file=$(find "$WORKSPACE" -maxdepth 1 \( -name "*.png" -o -name "*.jpeg" -o -name "*.webp" -o -name "*.jpg" \) -print -quit)
-
-if [ -z "$img_file" ]; then
-    echo "在 $WORKSPACE 目录中没有找到任何图片"
-    exit 1
-fi
 echo "找到图片: $img_file"
 # 检查图片是否已经是.jpg格式
 if [[ $img_file != *.jpg ]]; then
@@ -124,7 +125,7 @@ else
     exit 1
 fi
 
-cd $DDFA_DIR
+cd $DDFA_DIR || exit
 rm -r ./bfm/bfm.py
 rm -r ./FaceBoxes/utils/nms/cpu_nms.pyx
 git reset --hard
@@ -144,7 +145,7 @@ echo "========== 裁剪后图片复制完成 =========="
 # Modify the max_batch in projector_withseg.py and run it
 sed -i 's/max_batch = .*/max_batch = 3000000/g' "$PANOHEAD_DIR/projector_withseg.py"
 echo "========== projector_withseg.py修改完成 =========="
-cd $PANOHEAD_DIR
+cd $PANOHEAD_DIR || exit
 python projector_withseg.py --num-steps=300 --num-steps-pti=300 --shapes=True --outdir="$WORKSPACE/output" --target_img="$WORKSPACE/stage" --network="$PANOHEAD_DIR/models/easy-khair-180-gpc0.8-trans10-025000.pkl" --idx 0
 echo "========== ply model生成完成 =========="
 # Run gen_videos_proj_withseg.py for pre and post videos
