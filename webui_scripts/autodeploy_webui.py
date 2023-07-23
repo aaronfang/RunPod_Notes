@@ -88,6 +88,7 @@ extension_list = [
                     "https://github.com/camenduru/stable-diffusion-webui-images-browser",
                     "https://github.com/Bing-su/adetailer",
                     "https://github.com/continue-revolution/sd-webui-animatediff",
+                    "https://github.com/dvruette/sd-webui-fabric", 
                     # "https://github.com/civitai/sd_civitai_extension",
                     # "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
                 ]
@@ -134,7 +135,7 @@ controlnet_models = [
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_lineart.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_mlsd.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_normalbae.pth",
-                        "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
+                        # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_openpose.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_scribble.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_seg.pth",
                         # "https://huggingface.co/lllyasviel/ControlNet-v1-1/resolve/main/control_v11p_sd15_softedge.pth",
