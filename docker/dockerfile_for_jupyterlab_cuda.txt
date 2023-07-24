@@ -4,6 +4,9 @@ FROM nvidia/cuda:11.8.0-runtime-ubuntu22.04
 # 更新系统并安装必要的软件
 RUN apt-get update && apt-get install -y \
     wget \
+    aria2 \
+    cmake \
+    build-essential \
     git 
 
 # 安装 Miniconda
@@ -13,18 +16,18 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
     /opt/conda/bin/conda clean -ya
 ENV PATH /opt/conda/bin:$PATH
 
-# 克隆 git 仓库并创建新的 conda 环境
-RUN git clone https://github.com/SizheAn/PanoHead.git /workspace/PanoHead
-WORKDIR /workspace/PanoHead
-RUN conda env create -f environment.yml
+# # 克隆 git 仓库并创建新的 conda 环境
+# RUN git clone https://github.com/SizheAn/PanoHead.git /workspace/PanoHead
+# WORKDIR /workspace/PanoHead
+# RUN conda env create -f environment.yml
 
-# 添加新环境到 PATH 并安装 JupyterLab
-ENV PATH /opt/conda/envs/panohead/bin:$PATH
-RUN /opt/conda/envs/panohead/bin/pip install jupyterlab
+# # 添加新环境到 PATH 并安装 JupyterLab
+# ENV PATH /opt/conda/envs/panohead/bin:$PATH
+RUN pip install jupyterlab
 
 # 设置 Jupyter Notebook 配置文件
 RUN ln -s $(which jupyter-lab) /usr/local/bin/jupyter-notebook
-RUN /opt/conda/envs/panohead/bin/jupyter notebook --generate-config
+RUN jupyter notebook --generate-config
 RUN echo "c.ServerApp.token = ''" >> /root/.jupyter/jupyter_lab_config.py
 RUN echo "c.ServerApp.password = ''" >> /root/.jupyter/jupyter_lab_config.py
 RUN echo "c.ServerApp.open_browser = False" >> /root/.jupyter/jupyter_lab_config.py
@@ -38,7 +41,7 @@ WORKDIR /workspace
 
 # 创建 JupyterLab 启动脚本
 RUN echo "#!/bin/bash" >> /root/start.sh
-RUN echo bash -c "/opt/conda/envs/panohead/bin/jupyter lab --allow-root" >> /root/start.sh
+RUN echo bash -c "jupyter lab --allow-root" >> /root/start.sh
 RUN chmod +x /root/start.sh
 
 # 开放端口
