@@ -87,7 +87,7 @@ extension_list = [
                     "https://github.com/AUTOMATIC1111/stable-diffusion-webui-wildcards",
                     "https://github.com/camenduru/stable-diffusion-webui-images-browser",
                     "https://github.com/Bing-su/adetailer",
-                    "https://github.com/continue-revolution/sd-webui-animatediff",
+                    # "https://github.com/continue-revolution/sd-webui-animatediff",
                     "https://github.com/dvruette/sd-webui-fabric", 
                     # "https://github.com/civitai/sd_civitai_extension",
                     # "https://jihulab.com/hunter0725/stable-diffusion-webui-wd14-tagger",
@@ -95,17 +95,17 @@ extension_list = [
 
 #### SET CHECKPOINT MODELS
 checkpoint_models = [   
-                        "https://civitai.com/api/download/models/77276", # perfect world v4
-                        "https://civitai.com/api/download/models/94640", # majicMIX realistic
+                        # "https://civitai.com/api/download/models/77276", # perfect world v4
+                        # "https://civitai.com/api/download/models/94640", # majicMIX realistic
                         # "https://civitai.com/api/download/models/57618", # Counterfeit-V3.0
-                        "https://civitai.com/api/download/models/102996", # ToonYou
+                        # "https://civitai.com/api/download/models/102996", # ToonYou
                         # "https://civitai.com/api/download/models/79290", # A-Zovya RPG Artist Tools
                         # "https://civitai.com/api/download/models/90854", # 万象熔炉 | Anything V5/Ink
                         # "google_drive_id:1CiYnJ5p1l3hX7kTPWb8iCwf2IpPlVNMx", # refslaveV1_v1.safetensors
                         #"google_drive_id:1BdVp4ckGS6cungoka53U5cTYjppHck-2", # 0.6(nijiv5style_v10) + 0.4(perfectWorld_v3Baked).safetensors
                         # "google_drive_id:10tVNyvb2aEWqjo2eviZOPMMcQdGn7jkZ", # 0.6(perfectWorld_v3Baked) + 0.4(Counterfeit-V3.0_fp32).safetensors
-                        # "https://OwlMaster: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@huggingface.co/stabilityai/stable-diffusion-xl-base-0.9/resolve/main/sd_xl_base_0.9.safetensors",
-                        # "https://OwlMaster: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@huggingface.co/stabilityai/stable-diffusion-xl-refiner-0.9/resolve/main/sd_xl_refiner_0.9.safetensors",
+                        "https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors",
+                        "https://huggingface.co/stabilityai/stable-diffusion-xl-refiner-1.0/resolve/main/sd_xl_refiner_1.0.safetensors",
                     ]
 
 ### SET LORA MODELS
@@ -121,7 +121,8 @@ lora_models = [
 #### SET VAE
 vae_models = [
                 "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/resolve/main/vae-ft-mse-840000-ema-pruned.ckpt",
-                # "https://civitai.com/api/download/models/88156" # ClearVAE
+                "https://huggingface.co/stabilityai/sdxl-vae/resolve/main/sdxl_vae.safetensors",
+                # "https://civitai.com/api/download/models/88156", # ClearVAE
             ]
 
 ### SET CONTROLNET MODELS

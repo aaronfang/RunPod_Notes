@@ -13,6 +13,11 @@ if [ -z "$img_file" ]; then
     exit 1
 fi
 
+# install dlib dependencies
+apt-get update
+apt-get install -y --no-install-recommends build-essential cmake 
+#libopenblas-dev liblapack-dev libjpeg-dev libpng-dev libtiff-dev libgif-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libxvidcore-dev libx264-dev libgtk-3-dev libatlas-base-dev gfortran libhdf5-dev libhdf5-serial-dev libhdf5-103 libqtgui4 libqtwebkit4 libqt4-test python3-dev python3-pip python3-venv python3-setuptools python3-wheel python3-numpy python3-scipy python3-matplotlib python3-pandas python3-opencv python3-h5py python3-protobuf python3-keras python3-sip-dev python3-sip python3-pyqt5 python3-pyqt5.qtopengl python3-pyqt5.qtwebkit python3-pyqt5.qtsvg python3-pyqt5.qtserialport python3-pyqt5.qtsensors python3-pyqt5.qtlocation python3-pyqt5.qtmultimedia python3-pyqt5.qtxmlpatterns python3-pyqt5.qtxml python3-pyqt5.qtsql python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-pyqt5.qtmultimedia python3-pyqt5.qtxmlpatterns python3-pyqt5.qtsql python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-pyqt5.qtmultimedia python3-pyqt5.qtxmlpatterns python3-pyqt5.qtsql python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-pyqt5.qtmultimedia python3-pyqt5.qtxmlpatterns python3-pyqt5.qtsql python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-pyqt5.qtmultimedia python3-pyqt5.qtxmlpatterns python3-pyqt5.qtsql python3-pyqt5.qtsvg python3-pyqt5.qtopengl python3-pyqt5.qtmultimedia python3-pyqt5.qtxmlpatterns python3-pyqt5.qtsql
+
 # Install dependencies
 pip install imgui glfw pyspng mrcfile ninja plyfile trimesh onnxruntime onnx cython opencv-python click dlib tqdm imageio matplotlib scipy imageio-ffmpeg scikit-image
 echo "========== 依赖安装完成 =========="
